@@ -5,11 +5,11 @@
 </div>
 
 <p align="center">
-  <img src="./assets/readme/hero.svg" width="100%" alt="OpenClaw Knowledge Base Retriever — local knowledge-base retrieval over md/pdf/xlsx: hierarchical data_structure.md index navigation + progressive search, zero dependencies">
+  <img src="./assets/readme/hero.svg" width="100%" alt="OpenClaw Knowledge Base Retriever — local knowledge-base retrieval over md/pdf/xlsx: hierarchical data_structure.md index navigation + progressive search, core retrieval zero-dependency">
 </p>
 
-> 本地知识库检索器——分层索引导航 + 渐进式检索，零依赖零 API key，Windows / macOS 双平台。
-> OpenClaw local knowledge-base retriever — hierarchical index navigation + progressive retrieval over a local directory (md/pdf/xlsx), zero external dependencies.
+> 本地知识库检索器——分层索引导航 + 渐进式检索，核心检索零依赖零 API key，Windows / macOS 双平台（PDF/Excel 处理按需安装 Python 包）。
+> OpenClaw local knowledge-base retriever — hierarchical index navigation + progressive retrieval over a local directory (md/pdf/xlsx), core retrieval zero-dependency (PDF/Excel need on-demand pip packages).
 
 ![license](https://img.shields.io/badge/license-MIT-green)
 [![ClawHub downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fclawhub.ai%2Fapi%2Fv1%2Fskills%2Fxiaoyaoclaw-kb-retriever&query=skill.stats.downloads&label=ClawHub%20downloads&color=blue)](https://clawhub.ai/dtsola/skills/xiaoyaoclaw-kb-retriever)
@@ -22,7 +22,7 @@ OpenClaw agent 面对本地知识库（文档/报表/资料目录）时，常见
 - ❌ **乱处理格式**：PDF/Excel 用错工具，提取出一堆垃圾
 - ❌ **依赖云端**：RAG 方案要 embedding 模型或外部 API key，隐私不保
 
-这个 skill 一次性解决：**分层索引导航 + 渐进式检索 + 先学后处理 + 全本地零依赖**。
+这个 skill 一次性解决：**分层索引导航 + 渐进式检索 + 先学后处理 + 全本地零 API key**。
 
 ## 特性
 
@@ -30,7 +30,7 @@ OpenClaw agent 面对本地知识库（文档/报表/资料目录）时，常见
 - 🔍 **渐进式检索**：grep/Select-String 定位 → 窗口读（offset/limit）→ 最多 5 轮迭代，永不全文件加载
 - 📖 **先学后处理**：遇到 PDF/Excel 强制先读 references 教程再动手，杜绝瞎处理
 - 🐍 **双平台统一**：PDF 走 Python（pdfplumber），Windows / macOS 行为完全一致
-- 🔒 **全本地零依赖**：不建向量索引、不调云端 API，敏感资料不出本机
+- 🔒 **全本地零 API key**：不建向量索引、不调云端 API，敏感资料不出本机（PDF/Excel 仅按需安装白名单 Python 包）
 - 🏗️ **一键建库**：`python build_index.py <知识库>` 自动生成索引骨架，上手零门槛
 - 🧭 **来源可溯**：答案带文件 + 位置引用，可验证不臆造
 
@@ -108,7 +108,7 @@ agent 自动完成：**看目录地图 → 找到相关文件 → 只读需要�
 
 | | 向量 RAG 方案（qmd / boof / hk101） | **xiaoyaoclaw-kb-retriever** |
 |---|---|---|
-| 依赖 | embedding 模型 / 云端 API key / 本地 ML | ✅ 零依赖（grep + read + pdfplumber + pandas） |
+| 依赖 | embedding 模型 / 云端 API key / 本地 ML | ✅ 无云服务（grep + read + pdfplumber + pandas，按需装包） |
 | 索引 | 需建向量索引 | ✅ 轻量 data_structure.md 文本索引，一键生成 |
 | 隐私 | 部分方案上传云端 | ✅ 全本地，不出本机 |
 | 平台 | 多为 Unix 向 | ✅ Windows / macOS 双平台一等公民 |

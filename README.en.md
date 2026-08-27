@@ -5,11 +5,11 @@
 </div>
 
 <p align="center">
-  <img src="./assets/readme/hero.svg" width="100%" alt="OpenClaw Knowledge Base Retriever — local knowledge-base retrieval over md/pdf/xlsx: hierarchical data_structure.md index navigation + progressive search, zero dependencies">
+  <img src="./assets/readme/hero.svg" width="100%" alt="OpenClaw Knowledge Base Retriever — local knowledge-base retrieval over md/pdf/xlsx: hierarchical data_structure.md index navigation + progressive search, core retrieval zero-dependency">
 </p>
 
-> Local knowledge-base retrieval & QA over a local directory (md/pdf/xlsx) — hierarchical index navigation + progressive search, zero external dependencies, Windows & macOS ready.
-> 本地知识库检索器——分层索引导航 + 渐进式检索，零依赖零 API key，Windows / macOS 双平台。
+> Local knowledge-base retrieval & QA over a local directory (md/pdf/xlsx) — hierarchical index navigation + progressive search, core retrieval zero-dependency (PDF/Excel need on-demand pip packages), Windows & macOS ready.
+> 本地知识库检索器——分层索引导航 + 渐进式检索，核心检索零依赖零 API key，Windows / macOS 双平台（PDF/Excel 处理按需安装 Python 包）。
 
 ![license](https://img.shields.io/badge/license-MIT-green)
 [![ClawHub downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fclawhub.ai%2Fapi%2Fv1%2Fskills%2Fxiaoyaoclaw-kb-retriever&query=skill.stats.downloads&label=ClawHub%20downloads&color=blue)](https://clawhub.ai/dtsola/skills/xiaoyaoclaw-kb-retriever)
@@ -22,7 +22,7 @@ When an OpenClaw agent faces a local knowledge base (docs / reports / data direc
 - ❌ **Wrong format handling**: PDF/Excel processed with the wrong tools
 - ❌ **Cloud dependency**: RAG solutions need embedding models or external API keys, privacy at risk
 
-This skill solves all of it: **hierarchical index navigation + progressive retrieval + learn-before-process + fully local, zero dependencies.**
+This skill solves all of it: **hierarchical index navigation + progressive retrieval + learn-before-process + fully local, no cloud API.**
 
 ## Features
 
@@ -30,7 +30,7 @@ This skill solves all of it: **hierarchical index navigation + progressive retri
 - 🔍 **Progressive retrieval**: grep/Select-String to locate → windowed reads (offset/limit) → up to 5 bounded rounds, never whole-file loads
 - 📖 **Learn-before-process**: PDF/Excel handling is gated on reading the right references first
 - 🐍 **Unified Python pipeline**: PDF via pdfplumber — identical behavior on Windows & macOS
-- 🔒 **Fully local, zero dependencies**: no vector index, no cloud API, sensitive data never leaves your machine
+- 🔒 **Fully local, no cloud API**: no vector index, no cloud API, sensitive data never leaves your machine (PDF/Excel use on-demand pip packages from an allowlist)
 - 🏗️ **One-command index build**: `python build_index.py <kb>` auto-generates the index skeleton
 - 🧭 **Sourced answers**: every answer cites file + location, verifiable
 
@@ -108,7 +108,7 @@ The agent will: **read the index → locate relevant files → read only what's 
 
 | | Vector RAG (qmd / boof / hk101) | **xiaoyaoclaw-kb-retriever** |
 |---|---|---|
-| Dependencies | embedding models / cloud API keys / local ML | ✅ Zero (grep + read + pdfplumber + pandas) |
+| Dependencies | embedding models / cloud API keys / local ML | ✅ No cloud services (grep + read + pdfplumber + pandas, on-demand pip) |
 | Index | vector index build required | ✅ Lightweight text index, one command |
 | Privacy | some upload to cloud | ✅ Fully local |
 | Platforms | mostly Unix-oriented | ✅ Windows & macOS first-class |

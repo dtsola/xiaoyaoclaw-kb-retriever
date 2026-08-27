@@ -3,7 +3,8 @@ name: xiaoyaoclaw-kb-retriever
 description: >
   OpenClaw local knowledge-base retriever & QA over a local directory
   (md/pdf/xlsx): hierarchical data_structure.md index navigation + progressive
-  retrieval, zero external dependencies, Windows & macOS. Use when user asks
+  retrieval, core retrieval zero-dependency, Windows & macOS (PDF/Excel need
+  on-demand pip packages, see skill body). Use when user asks
   to retrieve/answer from a knowledge base directory (knowledge base/retrieve/
   RAG over local files). 中文：面向本地知识库目录的检索和问答助手。
   核心流程：(1)分层 data_structure.md 索引导航 (2)遇到 PDF/Excel 时必须先读取
@@ -21,8 +22,23 @@ description: >
 
 > 🚀 **小遥Claw：「把 AI 助手装进自己的电脑」：<https://www.yuque.com/dtsola/igp1aa/adcicbai2zlem0bz>**
 
-本地知识库检索——分层 data_structure.md 索引导航 + 渐进式检索（md/pdf/xlsx），零依赖零 API key。
-Windows / macOS 双平台，先学后处理，来源可溯。
+本地知识库检索——分层 data_structure.md 索引导航 + 渐进式检索（md/pdf/xlsx），核心检索零外部依赖零 API key。
+Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按需安装 Python 包，见下文「能力范围」与「依赖自安装」）。
+
+## 能力范围与写操作声明（权限透明）
+
+**身份**：本地知识库检索 / 问答工具。主流程**只读**——检索 md/pdf/xlsx，不修改任何源文件。
+
+**可选写操作**（均需用户明确要求，或作为检索流程的必要中间步骤）：
+- `scripts/build_index.py` → 生成 / 更新 `data_structure.md` 分层索引（写入知识库根目录及各子目录）
+- `scripts/extract_pdf_text.py` → 提取 PDF 文本为独立 `.txt` 文件（写入临时目录，源 PDF 不动）
+- `scripts/convert_pdf_to_images.py` → 扫描件转图片（OCR 可选路径，产物进临时目录）
+
+**边界承诺**：
+- 不修改任何源文件（md / pdf / xlsx 原样保留）
+- 不联网、不调用外部 API、不发送任何数据
+- 写操作产物（txt / 图片 / 索引）均位于用户指定或临时目录，可随时清理
+- 安装 Python 依赖前必须先告知用户并获得确认（见下文「依赖自安装」）
 
 ## 知识库目录说明
 
@@ -282,13 +298,18 @@ Windows / macOS 双平台，先学后处理，来源可溯。
 - 使用 pandas 进行数据探索、预览、过滤和分析
 - 双平台通用安装：`pip install pandas openpyxl`
 
-### 依赖自安装（无 requirements.txt）
-- 本项目**不提供** requirements.txt——依赖按需安装，缺什么装什么
-- 运行 Python 脚本或导入库时若遇到 `ModuleNotFoundError` / `ImportError`，**立即执行对应安装命令后重试**：
+### 依赖自安装（无 requirements.txt，白名单 + 用户确认）
+
+- 本项目**不提供** requirements.txt——依赖按需安装，缺什么装什么，保持轻量
+- ⚠️ **安装前必须告知用户**：明确提示「将安装以下 Python 包（会修改当前 Python 环境）」，**获得用户确认后才执行** `pip install`；禁止在未告知的情况下静默安装
+- 仅允许安装以下**白名单固定包**（均来自 PyPI 官方源，版本由 pip 解析）：
+  - PDF：`pdfplumber`、`pypdf`、`pypdfium2`
+  - Excel：`pandas`、`openpyxl`
+- 运行 Python 脚本或导入库时若遇到 `ModuleNotFoundError` / `ImportError`：按上述白名单提示用户，确认后执行对应安装命令并重试：
   - PDF：`pip install pdfplumber pypdf pypdfium2`
   - Excel：`pip install pandas openpyxl`
 - 安装命令双平台通用（pip 是 Python 自带，无需额外系统依赖）
-- 扫描件 OCR 属于可选路径：仅当 PDF 无文本层且用户明确要求时才安装 pytesseract + pdf2image（需额外系统依赖，见 references/pdf_reading.md）
+- 扫描件 OCR 属于可选路径：仅当 PDF 无文本层且用户明确要求时才安装 pytesseract + pdf2image（需额外系统依赖，见 references/pdf_reading.md）——同样需先告知用户并征得同意
 
 ### 工具使用原则
 - **exec**：用于目录存在性检查、关键词搜索（Select-String / grep）、文件列举；始终指定精准路径和过滤条件

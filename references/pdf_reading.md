@@ -8,6 +8,7 @@
 
 **PDF 处理统一走 Python 路线**（pdfplumber + pypdf + pypdfium2），Windows 与 macOS 行为完全一致：
 - 双平台统一安装：`pip install pdfplumber pypdf pypdfium2`
+- ⚠️ 安装前先告知用户「将安装这些包（会修改 Python 环境）」，获确认后再执行（详见 SKILL.md「依赖自安装」）
 - 不依赖 poppler/pdftotext 二进制（Windows/macOS 默认都没有，安装路径还不同——避免双平台差异）
 - 若系统中恰好已有 `pdftotext`（可选加速），可优先使用；但**默认路径是 Python，且必须输出到文件而非 stdout**
 
