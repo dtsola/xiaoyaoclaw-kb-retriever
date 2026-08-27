@@ -65,27 +65,36 @@ python scripts/build_index.py knowledge
 clawhub install xiaoyaoclaw-kb-retriever
 ```
 
-### Step 2：准备知识库 + 生成索引
+装完它就在你的 agent 技能列表里了，不用配置任何 API key 或服务。
+
+### Step 2：放资料 + 建索引
+
+把文档放进工作区的 `knowledge/` 目录（没有就建一个），md / pdf / xlsx 都行：
 
 ```
 你的工作区/
-├── skills/xiaoyaoclaw-kb-retriever/   ← 技能目录
-└── knowledge/                         ← 知识库（md/pdf/xlsx 随意）
-    ├── data_structure.md              ← 索引（一键生成）
-    └── <领域目录>/...
+└── knowledge/          ← 资料都放这
+    ├── 产品文档/
+    ├── 销售报表/
+    └── 会议纪要/
 ```
+
+然后跑一条命令生成「目录地图」（索引，可选但推荐）：
 
 ```bash
-python skills/xiaoyaoclaw-kb-retriever/scripts/build_index.py knowledge
+python scripts/build_index.py knowledge
 ```
 
-### Step 3：提问
+> 不跑也能用，但跑了之后 agent 找东西快得多、准得多。
 
-对你的 agent 说：
+### Step 3：直接用大白话问
 
-> 从知识库查一下 2024 年销售报表的关键数字
+不用记任何命令，像聊天一样问：
 
-agent 自动完成：读索引 → 定位相关文件 → 渐进检索 → 带来源回答。
+> 「知识库里 2024 年销售报表的关键数字是多少？」
+> 「从知识库查一下我们产品的定价策略」
+
+agent 自动完成：**看目录地图 → 找到相关文件 → 只读需要的部分 → 带来源回答你**。
 
 ### 日常使用习惯
 
@@ -95,7 +104,6 @@ agent 自动完成：读索引 → 定位相关文件 → 渐进检索 → 带�
 | 新增资料 | 重跑 build_index（已有索引自动跳过，--force 重建） |
 | 指定目录 | 对话中说「用 ./docs 作为知识库」 |
 | 大 PDF | 自动按页范围提取（extract_pdf_text.py），不整文件读 |
-
 ## 与其他方案的区别
 
 | | 向量 RAG 方案（qmd / boof / hk101） | **xiaoyaoclaw-kb-retriever** |

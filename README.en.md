@@ -59,31 +59,42 @@ python scripts/build_index.py knowledge
 
 ## 🚀 Quick start (3 steps, 5 minutes)
 
-### Step 1: Install
+### Step 1: Install the skill
 
 ```bash
 clawhub install xiaoyaoclaw-kb-retriever
 ```
 
-### Step 2: Prepare KB + build index
+Done — it's now in your agent's skill list. No API keys, no services to configure.
+
+### Step 2: Drop in your files + build the index
+
+Put your documents into a `knowledge/` directory in your workspace (create it if missing). md / pdf / xlsx all work:
 
 ```
 your-workspace/
-├── skills/xiaoyaoclaw-kb-retriever/   ← skill directory
-└── knowledge/                         ← knowledge base (md/pdf/xlsx)
-    ├── data_structure.md              ← index (one command)
-    └── <domain-dir>/...
+└── knowledge/          ← your files live here
+    ├── product-docs/
+    ├── sales-reports/
+    └── meeting-notes/
 ```
+
+Then run one command to generate the "directory map" (index — optional but recommended):
 
 ```bash
-python skills/xiaoyaoclaw-kb-retriever/scripts/build_index.py knowledge
+python scripts/build_index.py knowledge
 ```
 
-### Step 3: Ask
+> It works without the index too, but with it the agent finds things much faster and more accurately.
 
-> Query the 2024 sales report key numbers from the knowledge base.
+### Step 3: Just ask, in plain language
 
-The agent will: read the index → locate relevant files → retrieve progressively → answer with sources.
+No commands to memorize — ask like you'd ask a colleague:
+
+> "What are the key numbers in the 2024 sales report?"
+> "Look up our pricing strategy from the knowledge base."
+
+The agent will: **read the index → locate relevant files → read only what's needed → answer with sources**.
 
 ### Daily habits
 
@@ -93,7 +104,6 @@ The agent will: read the index → locate relevant files → retrieve progressiv
 | New files added | re-run build_index (skips existing, `--force` to rebuild) |
 | Custom directory | say "use ./docs as the knowledge base" |
 | Large PDFs | auto page-range extraction (extract_pdf_text.py), never whole-file |
-
 ## Why not a vector RAG?
 
 | | Vector RAG (qmd / boof / hk101) | **xiaoyaoclaw-kb-retriever** |
