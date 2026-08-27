@@ -279,6 +279,14 @@ Windows / macOS 双平台，先学后处理，来源可溯。
 - 使用 pandas 进行数据探索、预览、过滤和分析
 - 双平台通用安装：`pip install pandas openpyxl`
 
+### 依赖自安装（无 requirements.txt）
+- 本项目**不提供** requirements.txt——依赖按需安装，缺什么装什么
+- 运行 Python 脚本或导入库时若遇到 `ModuleNotFoundError` / `ImportError`，**立即执行对应安装命令后重试**：
+  - PDF：`pip install pdfplumber pypdf pypdfium2`
+  - Excel：`pip install pandas openpyxl`
+- 安装命令双平台通用（pip 是 Python 自带，无需额外系统依赖）
+- 扫描件 OCR 属于可选路径：仅当 PDF 无文本层且用户明确要求时才安装 pytesseract + pdf2image（需额外系统依赖，见 references/pdf_reading.md）
+
 ### 工具使用原则
 - **exec**：用于目录存在性检查、关键词搜索（Select-String / grep）、文件列举；始终指定精准路径和过滤条件
 - **read**：只用于局部读取文件，始终设置合理的 limit（如 200-500 行）和合适的 offset
