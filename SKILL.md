@@ -1,6 +1,12 @@
 ---
 name: xiaoyaoclaw-kb-retriever
-description: 面向本地知识库目录的检索和问答助手（OpenClaw 适配版）。核心流程：(1)分层 data_structure.md 索引导航 (2)遇到 PDF/Excel 时必须先读取 references 学习处理方法 (3)处理文件后再检索。按文件类型组合使用 grep/Select-String、read、pdfplumber、pandas 进行渐进式检索，避免整文件加载。用户问题涉及"从知识库目录回答问题/检索信息/查资料/knowledge base/本地知识库检索"时使用。English: local knowledge-base retriever & QA over a local directory (md/pdf/xlsx), hierarchical index navigation + progressive retrieval, zero external dependencies.
+description: >
+  面向本地知识库目录的检索和问答助手（OpenClaw 适配版）。核心流程：(1)分层 data_structure.md 索引导航
+  (2)遇到 PDF/Excel 时必须先读取 references 学习处理方法 (3)处理文件后再检索。按文件类型组合使用
+  grep/Select-String、read、pdfplumber、pandas 进行渐进式检索，避免整文件加载。用户问题涉及
+  "从知识库目录回答问题/检索信息/查资料/knowledge base/本地知识库检索"时使用。
+  English: local knowledge-base retriever & QA over a local directory (md/pdf/xlsx),
+  hierarchical index navigation + progressive retrieval, zero external dependencies.
 ---
 
 # 本地知识库检索 Skill（xiaoyaoclaw-kb-retriever · OpenClaw 版）
