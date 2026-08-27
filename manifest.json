@@ -1,0 +1,16 @@
+{
+  "name": "xiaoyaoclaw-kb-retriever",
+  "version": "1.0.0",
+  "category": "Retrieval / Local Knowledge Base",
+  "description": "OpenClaw local knowledge-base retriever with progressive search. Navigates layered data_structure.md indexes, enforces learn-before-process for PDF and Excel, bounds retrieval to at most five rounds, and answers with sources. Windows & macOS ready. 中文：本地知识库检索器——分层索引 + 渐进式检索，零依赖零 API key。",
+  "homepage": "https://github.com/dtsola/xiaoyaoclaw-kb-retriever",
+  "compat": [
+    "openclaw",
+    "claude-code",
+    "claude-ai",
+    "cursor",
+    "codex-cli",
+    "gemini-cli",
+    "opencode"
+  ]
+}
