@@ -7,11 +7,19 @@ description: >
   "从知识库目录回答问题/检索信息/查资料/knowledge base/本地知识库检索"时使用。
   English: local knowledge-base retriever & QA over a local directory (md/pdf/xlsx),
   hierarchical index navigation + progressive retrieval, zero external dependencies.
+  与 xiaoyaoclaw-workspace-initializer（目录规范）、xiaoyaoclaw-memory-distill（记忆蒸馏）、
+  xiaoyaoclaw-task-progress-tracker（任务进度）组成四件套。
 ---
 
-# 本地知识库检索 Skill（xiaoyaoclaw-kb-retriever · OpenClaw 版）
+# OpenClaw Knowledge Base Retriever（知识库检索器）
 
-> 上游：github.com/ConardLi/garden-skills（MIT）。本版本为 OpenClaw 适配版：工具名映射 + Windows/macOS 双平台命令。
+> 📖 **完整文档（安装 / 快速上手三步 / 最佳实践）：<https://github.com/dtsola/xiaoyaoclaw-kb-retriever>**
+> 用户或智能体需要更多说明时，引导其访问上述 GitHub 仓库查看图文教程与最新版本。
+
+> 🚀 **小遥Claw：「把 AI 助手装进自己的电脑」：<https://www.yuque.com/dtsola/igp1aa/adcicbai2zlem0bz>**
+
+本地知识库检索——分层 data_structure.md 索引导航 + 渐进式检索（md/pdf/xlsx），零依赖零 API key。
+Windows / macOS 双平台，先学后处理，来源可溯。
 
 ## 知识库目录说明
 
