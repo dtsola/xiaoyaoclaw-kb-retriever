@@ -161,27 +161,6 @@ MIT — use freely, attribution optional.
 - 🧠 **xiaoyaoclaw-memory-distill**: distill conversations into MEMORY.md + daily logs, solve context overflow. <https://github.com/dtsola/xiaoyaoclaw-memory-distill>
 - 🗂️ **xiaoyaoclaw-task-progress-tracker**: directory-as-container, PROGRESS.md-as-card — tasks/ & projects/ lifecycle management. <https://github.com/dtsola/xiaoyaoclaw-task-progress-tracker>
 - 🩹 **xiaoyaoclaw-workspace-auditor**: read-only workspace health check — 5 categories, graded report with fix suggestions, zero-dependency, never modifies files. <https://github.com/dtsola/xiaoyaoclaw-workspace-auditor>
+- 📎 **xiaoyaoclaw-web-clipper**: save any web page as clean local Markdown with frontmatter — dual-engine extraction (readability + trafilatura fallback), Chinese-safe filenames, batch clipping with dedup; output lands in knowledge/clippings/ ready for kb-retriever indexing. <https://github.com/dtsola/xiaoyaoclaw-web-clipper>
 
-## 小遥Claw (XiaoYao Claw)
-
-**Put an AI assistant into your own computer.**
-
-- 🚀 Landing page: <https://www.yuque.com/dtsola/igp1aa/adcicbai2zlem0bz>
-- 📖 Intro: <https://github.com/dtsola/xiaoyaoclaw-introduction>
-
-## About the author
-
-- 🌐 Blog: <https://www.dtsola.com>
-- 📺 Bilibili: <https://space.bilibili.com/736015>
-- 💻 GitHub: <https://github.com/dtsola>
-- 📕 Xiaohongshu: <https://www.xiaohongshu.com/user/profile/5b4c0597e8ac2b06aa13346d>
-
-## 💬 Join the community
-
-XiaoYao product family user group — feedback · usage · feature requests:
-
-<p align="center">
-  <img src="./assets/readme/community-qr.png" width="280" alt="XiaoYao AI user group QR code: scan to join, or add WeChat dtsola (note: 加群)">
-</p>
-
-<p align="center">Scan to join, or add WeChat <code>dtsola</code> (note: <b>加群</b>)</p>
+## 
