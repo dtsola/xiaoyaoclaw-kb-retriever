@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 """自动扫描知识库目录，生成/补齐 data_structure.md 分层索引骨架。
 
+⚠️ 这是**可选的维护脚本，不是检索**：它会在知识库目录内**新建/覆盖** `data_structure.md`。
+必须在用户明确要求「建/补索引」并确认后运行；只写 `data_structure.md`，不删不改其它文件。
+
+语言 / Language：输出默认中文，**语言可选**。
+
 用法:
     python build_index.py <kb-root> [--force]
 
@@ -110,10 +115,12 @@ def main():
     parser.add_argument("--force", action="store_true", help="覆盖已有索引")
     args = parser.parse_args()
 
-    root = os.path.abspath(args.kb_root)
+    root = os.path.abspath(os.path.expanduser(args.kb_root))
     if not os.path.isdir(root):
         print(f"错误: 目录不存在 {root}", file=sys.stderr)
         sys.exit(1)
+
+    print(f"[write] 将在下列目录内写入/更新 {INDEX_NAME}（只动这一个文件）：{root}")
 
     generated, skipped, empty = 0, 0, 0
     for dirpath, dirnames, filenames in os.walk(root):
@@ -128,6 +135,10 @@ def main():
             continue
 
         index_path = os.path.join(dirpath, INDEX_NAME)
+        # 双保险：索引文件必须落在根目录内（防符号链接/异常路径越界写入）
+        if os.path.commonpath([root, os.path.abspath(index_path)]) != root:
+            print(f"  跳过（超出根目录）: {index_path}", file=sys.stderr)
+            continue
         if os.path.exists(index_path) and not args.force:
             skipped += 1
             print(f"跳过（已有索引）: {os.path.relpath(index_path, root)}")

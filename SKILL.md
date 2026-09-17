@@ -4,15 +4,27 @@ description: >
   OpenClaw local knowledge-base retriever & QA over a local directory
   (md/pdf/xlsx): hierarchical data_structure.md index navigation + progressive
   retrieval, core retrieval zero-dependency, Windows & macOS (PDF/Excel need
-  on-demand pip packages, see skill body). Use when user asks
-  to retrieve/answer from a knowledge base directory (knowledge base/retrieve/
-  RAG over local files). 中文：面向本地知识库目录的检索和问答助手。
+  on-demand pip packages, see skill body). Retrieval itself is read-only; the
+  skill also ships optional maintenance scripts that WRITE files inside the
+  knowledge base — scripts/build_index.py generates/updates data_structure.md
+  index files, and scripts/extract_pdf_text.py writes derived .txt files — and
+  those run only when the user asks for indexing/PDF text extraction and
+  confirms the write. Use when user asks to retrieve/answer from a knowledge
+  base directory (knowledge base/retrieve/ RAG over local files)，
+  或明确要求生成/更新索引、把 PDF 转文本。中文：面向本地知识库目录的检索和问答助手。
   核心流程：(1)分层 data_structure.md 索引导航 (2)遇到 PDF/Excel 时必须先读取
   references 学习处理方法 (3)处理文件后再检索。按文件类型组合使用
   grep/Select-String、read、pdfplumber、pandas 进行渐进式检索，避免整文件加载。
   用户问题涉及"从知识库目录回答问题/检索信息/查资料/knowledge base/本地知识库检索"时使用。
   与 xiaoyaoclaw-workspace-initializer（目录规范）、xiaoyaoclaw-memory-distill（记忆蒸馏）、
   xiaoyaoclaw-task-progress-tracker（任务进度）组成四件套。
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Bash
+  - Write
+  - Edit
 ---
 
 # OpenClaw Knowledge Base Retriever（知识库检索器）
@@ -96,16 +108,35 @@ Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按
 
 ### exec 命令模板（按平台选择）
 
-**搜索文本（替代 Grep）**：
-- Windows PowerShell：
-  ```powershell
-  Get-ChildItem -Path "<dir>" -Recurse -Include "*.md","*.txt" -File | Select-String -Pattern "<关键词>" | Select-Object Path, LineNumber, Line
-  ```
-  （文件多时先 `Select-Object -First 50` 限制输出量）
-- macOS/Linux：
-  ```bash
-  grep -rn "<关键词>" --include="*.md" --include="*.txt" "<dir>" | head -50
-  ```
+**搜索文本（替代 Grep）—— 首选本技能自带的安全检索脚本**：
+
+```bash
+# 关键词与目录都作为 argv 传入，不经 shell 解析；按字面量匹配；条数有上限
+python scripts/search_kb.py <知识库根目录> "<关键词>" --max-hits 50
+python scripts/search_kb.py <知识库根目录> --list --max-files 100    # 只列举文件
+```
+
+⚠️ **为什么不要自己拼 shell 命令**：关键词与目录都是**用户可控文本**。写成
+`Select-String -Pattern "<关键词>"` / `grep "<关键词>"` 这类**字符串模板**时，
+文本里的引号、反引号、`$()`、`;` 会被 shell 当成语法 —— 这就是命令注入。
+如果必须直接用 shell，遵守下面三条：
+
+1. **关键词与路径先放进变量**，命令里只引用变量，绝不拼接字符串：
+   ```powershell
+   $dir = 'C:\path\to\kb'      # 已确认在知识库根目录内
+   $kw  = '用户给的关键词'         # 原样放进单引号变量
+   Get-ChildItem -LiteralPath $dir -Recurse -File -Include *.md,*.txt |
+     Select-String -Pattern $kw -SimpleMatch |
+     Select-Object -First 50 Path, LineNumber, Line
+   ```
+   ```bash
+   dir='/path/to/kb'; kw='用户给的关键词'
+   grep -rnF -e "$kw" --include='*.md' --include='*.txt' -- "$dir" | head -50
+   ```
+2. **关键词按字面量匹配**（PowerShell `-SimpleMatch` / `grep -F`），不要当正则用；
+   路径用 `-LiteralPath`，别让用户文本当通配符或路径片段。
+3. **禁止** `Invoke-Expression` / `iex` / `eval` / `sh -c "$拼接"`，也不要把关键词
+   塞进命令名、参数名、重定向目标这类**结构性位置**；路径必须落在知识库根目录内。
 
 **列举文件（替代 Glob）**：
 - Windows：`Get-ChildItem -Path "<dir>" -Recurse -File | Select-Object -ExpandProperty FullName | Select-Object -First 100`
@@ -117,6 +148,20 @@ Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按
 
 > ⚠️ 命中结果多时，用 `Select-Object -First` / `head` 限制输出，避免占用大量 token。
 > ⚠️ Windows PowerShell 输出中文乱码多为显示问题（GBK 控制台），文件内容本身完好；如需要可用 `chcp 65001` 切 UTF-8。
+
+## 读写范围与权限（先看这里）
+
+**默认只读**：检索、问答、列举文件都只读，不改动知识库任何内容。
+
+**可写操作（仅两项，且必须由用户点名并确认）**：
+
+| 操作 | 写什么 | 触发条件 |
+|---|---|---|
+| 生成/更新索引 | 各目录下的 `data_structure.md` | 用户明确要求「建/补索引」；跑之前先说清「将写入哪些目录」 |
+| PDF 转文本 | 派生的 `.txt` 文件（源 PDF 不动） | 用户明确要求把 PDF 内容落成文本；先说清写入位置 |
+
+**写入硬约束**：只写**知识库根目录内**的文件；不删任何文件；不改知识库之外的文件；写前打印目标路径。
+**权限对应**：`Read`/`Glob`/`Grep`/`Bash` 用于检索与只读命令；`Write`/`Edit` 仅用于上面两项写操作。本技能不读环境变量、不读凭据、不联网。
 
 ## 总体流程
 
@@ -298,18 +343,17 @@ Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按
 - 使用 pandas 进行数据探索、预览、过滤和分析
 - 双平台通用安装：`pip install pandas openpyxl`
 
-### 依赖自安装（无 requirements.txt，白名单 + 用户确认）
+### 可选依赖（精确钉版清单 + 用户确认）
 
-- 本项目**不提供** requirements.txt——依赖按需安装，缺什么装什么，保持轻量
-- ⚠️ **安装前必须告知用户**：明确提示「将安装以下 Python 包（会修改当前 Python 环境）」，**获得用户确认后才执行** `pip install`；禁止在未告知的情况下静默安装
-- 仅允许安装以下**白名单固定包**（均来自 PyPI 官方源，版本由 pip 解析）：
-  - PDF：`pdfplumber`、`pypdf`、`pypdfium2`
-  - Excel：`pandas`、`openpyxl`
-- 运行 Python 脚本或导入库时若遇到 `ModuleNotFoundError` / `ImportError`：按上述白名单提示用户，确认后执行对应安装命令并重试：
-  - PDF：`pip install pdfplumber pypdf pypdfium2`
-  - Excel：`pip install pandas openpyxl`
-- 安装命令双平台通用（pip 是 Python 自带，无需额外系统依赖）
-- 扫描件 OCR 属于可选路径：仅当 PDF 无文本层且用户明确要求时才安装 pytesseract + pdf2image（需额外系统依赖，见 references/pdf_reading.md）——同样需先告知用户并征得同意
+- 检索核心**零依赖**；PDF / Excel / 扫描件处理才需要额外包
+- **版本精确钉死**在 [`requirements-optional.txt`](requirements-optional.txt)（解析不可信文档时，解析库版本必须确定）：
+  `pdfplumber==0.11.10` / `pypdf==6.19.0` / `pypdfium2==5.13.0` / `pandas==3.0.5` / `openpyxl==3.1.5`
+- ⚠️ **安装前必须告知用户**：明确提示「将安装以下 Python 包（会修改当前 Python 环境）」，**获得用户确认后才执行**；禁止静默安装
+  - PDF：`pip install pdfplumber==0.11.10 pypdf==6.19.0 pypdfium2==5.13.0`
+  - Excel：`pip install pandas==3.0.5 openpyxl==3.1.5`
+- 遇到 `ModuleNotFoundError` / `ImportError`：按上述白名单+钉版提示用户，确认后安装并重试
+- ⚠️ **扫描件 OCR 是可选路径，且要过同一道确认**：仅当 PDF 无文本层且用户明确要求时，才考虑 `pytesseract==0.3.13` + `pdf2image==1.17.0`；它们**还需要系统级依赖**（tesseract / poppler）——必须先把「将安装的 pip 包 + 系统级依赖 + 影响」讲清楚并取得同意，再执行（详见 references/pdf_reading.md）
+- 升级依赖须显式改动 `requirements-optional.txt`，不做隐式升级
 
 ### 工具使用原则
 - **exec**：用于目录存在性检查、关键词搜索（Select-String / grep）、文件列举；始终指定精准路径和过滤条件

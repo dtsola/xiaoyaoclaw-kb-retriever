@@ -1,5 +1,8 @@
 # PDF 读取与分析（OpenClaw 版 · 双平台统一 Python 路线）
 
+> 🌐 语言 / Language：本文档是**内容规范**而非语言约束；默认中文，用户用英文或其他语言提问时就用该语言回答。
+> This document is a content spec, not a language mandate — answer in the user's language.
+
 > ⚠️ **使用本文档前请注意**：本文档应在实际处理 PDF 文件之前完整阅读，以选择最合适的工具和方法。不要在未阅读本文档的情况下盲目尝试处理 PDF。
 
 用于从 PDF 文件中提取文本、表格和元数据的方法。

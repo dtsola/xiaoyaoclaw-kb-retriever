@@ -1,5 +1,8 @@
 # Excel 数据分析
 
+> 🌐 语言 / Language：本文档是**内容规范**而非语言约束；默认中文，用户用英文或其他语言提问时就用该语言回答。
+> This document is a content spec, not a language mandate — answer in the user's language.
+
 > ⚠️ **使用本文档前请注意**：本文档应在实际分析 Excel 数据之前阅读，以了解正确的 pandas 分析方法。请先阅读 excel_reading.md 学习如何读取数据。
 
 使用 pandas 对 Excel 数据进行常规分析操作。

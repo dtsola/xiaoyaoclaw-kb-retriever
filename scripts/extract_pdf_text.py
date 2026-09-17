@@ -11,10 +11,38 @@
 说明:
     - Windows / macOS 行为一致（纯 Python，无 poppler 依赖）
     - 输出写入文件而非 stdout，避免占用 LLM token
+
+安全边界 / Safety:
+    - **写盘披露**：本脚本会新建/覆盖 <output.txt>（仅此一个文件，源 PDF 不动）；
+      运行前会打印将写入的绝对路径。
+    - **写入范围**：<output.txt> 必须与 <input.pdf> 位于同一知识库根目录内，
+      不得写到系统目录或越出该根目录（脚本会校验并拒绝）。
+    - **本操作需用户点名并确认**：把 PDF 转成文本文件属派生写入，不是纯检索。
+
+语言 / Language：输出默认中文，**语言可选**（可按用户语言调整文案）。
 """
+import os
 import sys
 
-import pdfplumber
+import pdfplumber  # 可选依赖，版本见 requirements-optional.txt
+
+
+def resolve_within(pdf_path: str, out_path: str) -> str:
+    """校验输出路径：解析成绝对路径后，必须与源 PDF 同处一个根目录内。"""
+    pdf_abs = os.path.abspath(os.path.expanduser(pdf_path))
+    out_abs = os.path.abspath(os.path.expanduser(out_path))
+    root = os.path.dirname(pdf_abs)
+    try:
+        common = os.path.commonpath([root, out_abs])
+    except ValueError:
+        common = ""
+    if common != root or not out_abs.startswith(root + os.sep):
+        print(
+            f"ERROR: 输出文件必须与源 PDF 位于同一目录内（{root}），已拒绝：{out_abs}",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+    return out_abs
 
 
 def main():
@@ -27,6 +55,9 @@ def main():
     input_pdf, output_txt = sys.argv[1], sys.argv[2]
     start = int(sys.argv[3]) if len(sys.argv) > 3 else 1
     end = int(sys.argv[4]) if len(sys.argv) > 4 else None
+
+    output_txt = resolve_within(input_pdf, output_txt)
+    print(f"[write] 将写入派生文本文件：{output_txt}（源 PDF 不改动）")
 
     with pdfplumber.open(input_pdf) as pdf:
         total = len(pdf.pages)

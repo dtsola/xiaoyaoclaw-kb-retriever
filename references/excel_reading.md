@@ -1,5 +1,8 @@
 # Excel 文件读取
 
+> 🌐 语言 / Language：本文档是**内容规范**而非语言约束；默认中文，用户用英文或其他语言提问时就用该语言回答。
+> This document is a content spec, not a language mandate — answer in the user's language.
+
 > ⚠️ **使用本文档前请注意**：本文档应在实际处理 Excel 文件之前阅读，以了解正确的 pandas 读取方法。请配合 excel_analysis.md 一起使用。
 
 使用 pandas 读取 Excel 文件的核心方法。

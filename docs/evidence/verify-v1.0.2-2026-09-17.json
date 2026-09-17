@@ -1,0 +1,2242 @@
+{
+  "schema": "clawhub.skill.verify.v1",
+  "ok": false,
+  "decision": "fail",
+  "reasons": [
+    "security.status_not_clean"
+  ],
+  "slug": "xiaoyaoclaw-kb-retriever",
+  "displayName": "OpenClaw Knowledge Base Retriever",
+  "pageUrl": "https://clawhub.ai/dtsola/skills/xiaoyaoclaw-kb-retriever",
+  "publisherHandle": "dtsola",
+  "publisherDisplayName": "dtsola",
+  "publisherProfileUrl": "https://clawhub.ai/dtsola",
+  "version": "1.0.2",
+  "resolvedFrom": "latest",
+  "tag": null,
+  "createdAt": 1787841647776,
+  "card": {
+    "available": true,
+    "path": "skill-card.md",
+    "url": "https://wry-manatee-359.convex.site/api/v1/skills/xiaoyaoclaw-kb-retriever/card?ownerHandle=dtsola&version=1.0.2",
+    "sha256": "60d0633362a543a6e79e9d5ff48ba74916cee0e6106dc30b968cfafb900fafed",
+    "size": 3002,
+    "contentType": "text/markdown; charset=utf-8"
+  },
+  "artifact": {
+    "sourceFingerprint": "8583bc5702c8192dfa6a3674c23f989237194569fa1d5b02c6fa5d8fd9557dd7",
+    "bundleFingerprints": [
+      "65f73fd741e0f8618b7712ea0374c15ef236f496f95da4a7454699ef4cb89d56"
+    ],
+    "files": [
+      {
+        "path": "references/excel_analysis.md",
+        "size": 2745,
+        "sha256": "ffc645d573d9621c27199ba8929a9dda598ad9a90870df18a2b4f9e1edf47aed",
+        "contentType": "application/octet-stream"
+      },
+      {
+        "path": "references/excel_reading.md",
+        "size": 1742,
+        "sha256": "220db9c345ffe35c63b75a2f30a0260478d52ccb1a0c2b735a43b2a4edcd149f",
+        "contentType": "application/octet-stream"
+      },
+      {
+        "path": "references/pdf_reading.md",
+        "size": 8498,
+        "sha256": "2e4c03a7d2c1c98db1206a8fc48b3f561cd241c698a747120e0e1996509abd29",
+        "contentType": "application/octet-stream"
+      },
+      {
+        "path": "scripts/build_index.py",
+        "size": 5513,
+        "sha256": "6284b07524e450fb6fe89a4cba6494e501950a1c726c5894963f37a679fe0173",
+        "contentType": "application/octet-stream"
+      },
+      {
+        "path": "scripts/convert_pdf_to_images.py",
+        "size": 1123,
+        "sha256": "095a0105a718af75ede309cb03f84a20c81d17f1727f7686fd4b294f1f40294f",
+        "contentType": "application/octet-stream"
+      },
+      {
+        "path": "scripts/extract_pdf_text.py",
+        "size": 1357,
+        "sha256": "4c1eef0649f9193feed3262bce94fea71a9c1f18681aee3478a30a04ca9f821b",
+        "contentType": "application/octet-stream"
+      },
+      {
+        "path": "templates/data_structure.md",
+        "size": 595,
+        "sha256": "635ca653d1ed81aab1d732f77367e90903d6294cf9dfc3dac02565b267cc423e",
+        "contentType": "application/octet-stream"
+      },
+      {
+        "path": "SKILL.md",
+        "size": 19815,
+        "sha256": "3116918211c87e7747e0b130379c2e40083ba3bc3745e9f53d16b540a5acbbf9",
+        "contentType": "application/octet-stream"
+      }
+    ]
+  },
+  "provenance": {
+    "source": "unavailable",
+    "reason": "No server-resolved GitHub import provenance is stored for this version."
+  },
+  "security": {
+    "status": "suspicious",
+    "passed": false,
+    "rawStatus": "suspicious",
+    "verdict": "suspicious",
+    "confidence": "high",
+    "summary": "The skill is mostly purpose-aligned, but its search instructions use raw shell command templates with user-influenced paths and keywords, which creates a real review concern.",
+    "model": null,
+    "checkedAt": 1789557150229,
+    "scannerReports": {
+      "aig": {
+        "version": "2.1.0",
+        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/Schemata/sarif-schema-2.1.0.json",
+        "runs": [
+          {
+            "tool": {
+              "driver": {
+                "name": "aig-skill-scan",
+                "version": "0.2.1",
+                "informationUri": "https://github.com/Tencent/AI-Infra-Guard",
+                "rules": [
+                  {
+                    "id": "T01",
+                    "name": "Skill Instruction Hijacking",
+                    "shortDescription": {
+                      "text": "Alters the agent's current session goals or safety constraints when the skill is loaded"
+                    }
+                  },
+                  {
+                    "id": "T02",
+                    "name": "Agent Memory Poisoning",
+                    "shortDescription": {
+                      "text": "Writes attacker-controlled rules into persistent memory so they continue to affect future sessions"
+                    }
+                  },
+                  {
+                    "id": "T03",
+                    "name": "Remote Payload Retrieval and Execution",
+                    "shortDescription": {
+                      "text": "Fetches code from an external URL, allowing the effective payload to change after skill review"
+                    }
+                  },
+                  {
+                    "id": "T04",
+                    "name": "Embedded Malicious Code",
+                    "shortDescription": {
+                      "text": "Ships malicious scripts inside the skill package and executes them locally when invoked"
+                    }
+                  },
+                  {
+                    "id": "T05",
+                    "name": "Unauthorized Access and Privilege Escalation",
+                    "shortDescription": {
+                      "text": "Breaks least-privilege boundaries by obtaining permissions beyond the task's legitimate needs"
+                    }
+                  },
+                  {
+                    "id": "T06",
+                    "name": "System Persistence",
+                    "shortDescription": {
+                      "text": "Installs cross-session backdoors, hooks, services, or scheduled tasks that survive the skill run"
+                    }
+                  },
+                  {
+                    "id": "T07",
+                    "name": "Tool Hijacking and Spoofing",
+                    "shortDescription": {
+                      "text": "Modifies, wraps, spoofs, or replaces tools so legitimate-looking calls execute attacker logic"
+                    }
+                  },
+                  {
+                    "id": "T08",
+                    "name": "Insecure Dependencies",
+                    "shortDescription": {
+                      "text": "Introduces malicious packages or components through dependency confusion, typosquatting, or unsafe sources"
+                    }
+                  },
+                  {
+                    "id": "T09",
+                    "name": "Insecure Skill Coding Practices",
+                    "shortDescription": {
+                      "text": "Exposes exploitable flaws such as hardcoded secrets, command injection, plaintext sensitive data, or unsafe temp files"
+                    }
+                  },
+                  {
+                    "id": "other",
+                    "name": "Other Risk",
+                    "shortDescription": {
+                      "text": "Security issues not covered by the T01-T09 classification"
+                    }
+                  }
+                ]
+              }
+            },
+            "results": [
+              {
+                "ruleId": "T09",
+                "level": "error",
+                "message": {
+                  "text": "Shell Command Injection Through User-Controlled Search Terms and Paths"
+                },
+                "locations": [
+                  {
+                    "physicalLocation": {
+                      "artifactLocation": {
+                        "uri": "SKILL.md"
+                      },
+                      "region": {
+                        "startLine": 100,
+                        "endLine": 115
+                      }
+                    }
+                  }
+                ],
+                "partialFingerprints": {
+                  "primaryLocationLineHash": "b3e5ef028325af10"
+                },
+                "properties": {
+                  "description": "<![CDATA[\n## Vulnerability Details\n\n**File Location**: `SKILL.md`, lines 100-115  \n**Vulnerability Type**: Shell command injection  \n**Risk Level**: High\n\n### Vulnerable Code\n\n```markdown\n**搜索文本（替代 Grep）**：\n- Windows PowerShell：\n  ```powershell\n  Get-ChildItem -Path \"<dir>\" -Recurse -Include \"*.md\",\"*.txt\" -File | Select-String -Pattern \"<关键词>\" | Select-Object Path, LineNumber, Line\n  ```\n  （文件多时先 `Select-Object -First 50` 限制输出量）\n- macOS/Linux：\n  ```bash\n  grep -rn \"<关键词>\" --include=\"*.md\" --include=\"*.txt\" \"<dir>\" | head -50\n  ```\n\n**列举文件（替代 Glob）**：\n- Windows：`Get-ChildItem -Path \"<dir>\" -Recurse -File | Select-Object -ExpandProperty FullName | Select-Object -First 100`\n- macOS/Linux：`find \"<dir>\" -type f | head -100`\n\n**检查目录存在（替代 test -d）**：\n- Windows：`Test-Path -Path \"<dir>\"`\n- macOS/Linux：`test -d \"<dir>\" && echo exists`\n```\n\nThe affected values are derived from user input elsewhere in the documented workflow:\n\n```markdown\n- From the user question, extract 3-8 keywords...\n- If the user explicitly specifies another path, use the path specified by the user as the root directory.\n```\n\n### Technical Analysis\n\nThe Skill instructs the agent to place a user-provided knowledge-base path and keywords extracted from the user's request directly into shell command strings executed through `exec`.\n\nSurrounding a value with double quotes does not make it safe for shell evaluation:\n\n- In POSIX-compatible shells, command substitution such as `$(command)` remains active inside double-quoted strings.\n- In PowerShell, subexpressions such as `$()` are evaluated inside expandable double-quoted strings.\n- Embedded quotes and shell metacharacters may terminate the intended argument and introduce additional commands.\n\nNo escaping, parameter binding, canonical-path validation, or approved-root enforcement is specified. The vulnerability is in the Skill instructions rather than a Python subprocess call, but those instructions directly guide the agent to construct executable command text.\n\n### Attack Path\n\n1. An attacker supplies a malicious knowledge-base path or search phrase.\n2. The agent follows the Skill instructions and substitutes the value into an `exec` command template.\n3. The substituted value contains syntax interpreted by Bash, another POSIX shell, or PowerShell.\n4. The shell evaluates the injected expression rather than treating the entire value as literal data.\n5. The injected command runs with the operating-system permissions of the agent process.\n\nFor example, a POSIX search value containing a command substitution could be evaluated inside:\n\n```bash\ngrep -rn \"<attacker-controlled value>\" --include=\"*.md\" --include=\"*.txt\" \"<dir>\"\n```\n\nA comparable PowerShell value containing an expandable subexpression could be evaluated in the `-Pattern` or `-Path` argument.\n\n### Impact Assessment\n\nSuccessful exploitation permits arbitrary command execution under the agent process's account. Depending on that account's permissions, an attacker could:\n\n- Read files outside the intended knowledge-base directory.\n- Modify or delete files accessible to the agent.\n- Access local configuration files or credentials available to the process.\n- Create additional processes or download and execute other content if outbound access is available.\n- Alter extracted output or generated indexes.\n- Compromise the confidentiality and integrity of other user data available to the same account.\n\nThe vulnerability does not independently provide elevated operating-system privileges, but it can exercise all privileges already held by the agent process.\n]]>",
+                  "severity": "High"
+                },
+                "fixes": [
+                  {
+                    "description": {
+                      "text": "<![CDATA[\n## Remediation Suggestions\n\n1. Do not construct shell commands by interpolating user-controlled paths or search patterns.\n2. Prefer native file-listing and text-search tools that accept structured arguments and do not invoke a shell.\n3. If Python is used, invoke programs with an argument array and without shell processing:\n\n   ```python\n   subprocess.run(\n       [\"grep\", \"-rn\", \"--\", keyword, directory],\n       shell=False,\n       check=True,\n   )\n   ```\n\n4. For PowerShell, pass values as bound parameters to a fixed script block instead of inserting them into executable command text. Use literal-path operations where available.\n5. Resolve the requested knowledge-base root to a canonical absolute path and verify that all accessed files remain beneath that approved root.\n6. Reject NUL bytes and unexpected control characters. If shell execution cannot be removed, apply shell-specific escaping rather than generic quoting.\n7. Add tests using adversarial inputs containing quotes, semicolons, pipes, backticks, `$()`, newlines, and PowerShell subexpressions.\n8. Update the Skill documentation so it explicitly prohibits concatenating or interpolating user-controlled input into `exec` commands.\n]]>"
+                    }
+                  }
+                ]
+              },
+              {
+                "ruleId": "T08",
+                "level": "warning",
+                "message": {
+                  "text": "Unpinned Runtime Dependency Installation"
+                },
+                "locations": [
+                  {
+                    "physicalLocation": {
+                      "artifactLocation": {
+                        "uri": "SKILL.md"
+                      },
+                      "region": {
+                        "startLine": 302,
+                        "endLine": 310
+                      }
+                    }
+                  }
+                ],
+                "partialFingerprints": {
+                  "primaryLocationLineHash": "23d5b631467b0a61"
+                },
+                "properties": {
+                  "description": "<![CDATA[\n## Vulnerability Details\n\n**File Location**: `SKILL.md`, lines 302-310  \n**Vulnerability Type**: Unpinned third-party dependency installation  \n**Risk Level**: Medium\n\n### Vulnerable Code\n\n```markdown\n### 依赖自安装（无 requirements.txt，白名单 + 用户确认）\n\n- 本项目**不提供** requirements.txt——依赖按需安装，缺什么装什么，保持轻量\n- ⚠️ **安装前必须告知用户**：明确提示「将安装以下 Python 包（会修改当前 Python 环境）」，**获得用户确认后才执行** `pip install`；禁止在未告知的情况下静默安装\n- 仅允许安装以下**白名单固定包**（均来自 PyPI 官方源，版本由 pip 解析）：\n  - PDF：`pdfplumber`、`pypdf`、`pypdfium2`\n  - Excel：`pandas`、`openpyxl`\n- 运行 Python 脚本或导入库时若遇到 `ModuleNotFoundError` / `ImportError`：按上述白名单提示用户，确认后执行对应安装命令并重试：\n  - PDF：`pip install pdfplumber pypdf pypdfium2`\n  - Excel：`pip install pandas openpyxl`\n```\n\nAdditional unpinned OCR installation guidance appears in `references/pdf_reading.md`, line 177:\n\n```markdown\n> 需要：`pip install pytesseract pdf2image`（双平台通用；macOS 需 `brew install tesseract`，Windows 需安装 Tesseract OCR 并加入 PATH——仅扫描件场景才需要）\n```\n\n### Technical Analysis\n\nThe Skill deliberately installs packages at runtime without version constraints, lock files, or cryptographic hash verification. Package names are allowlisted and installation requires user confirmation, which reduces accidental installation and typosquatting exposure. However, these controls do not guarantee the integrity or reproducibility of the resolved package versions.\n\nEach installation may resolve to a different latest release and dependency graph. A compromised upstream release, compromised transitive dependency, or unexpectedly vulnerable version could introduce malicious or unsafe code into the Python environment.\n\nInstalling into the current Python environment also broadens the effect beyond one Skill invocation and may alter packages used by other applications.\n\n### Attack Path\n\n1. A requested PDF, Excel, or OCR operation requires a package that is not installed.\n2. The Skill asks the user for permission to execute an unpinned `pip install` command.\n3. The user approves the documented installation.\n4. Pip resolves the package names and transitive dependencies at installation time.\n5. If a resolved artifact or upstream release has been compromised, its installation or runtime behavior executes within the agent's Python environment.\n6. The compromised component receives the same filesystem and process permissions as the agent.\n\nThis finding does not establish that any currently named package is malicious. The risk arises from mutable, unverified dependency resolution.\n\n### Impact Assessment\n\nA compromised dependency could execute code with the agent process's permissions during installation, import, or document processing. Potential effects include:\n\n- Reading or modifying files accessible to the agent.\n- Processing or disclosing sensitive document contents.\n- Tampering with generated text, images, or indexes.\n- Modifying the shared Python environment.\n- Affecting other tools that use the same environment.\n- Executing further commands or making network requests where permitted.\n\nUser confirmation does not prevent supply-chain compromise because the user approves package names, not a cryptographically verified set of artifacts.\n]]>",
+                  "severity": "Medium"
+                },
+                "fixes": [
+                  {
+                    "description": {
+                      "text": "<![CDATA[\n## Remediation Suggestions\n\n1. Create a reviewed dependency manifest or lock file with exact versions for all direct and transitive dependencies.\n2. Require cryptographic hashes for downloaded artifacts, for example through a hash-locked requirements file and:\n\n   ```bash\n   python -m pip install --require-hashes -r requirements.txt\n   ```\n\n3. Install dependencies into a dedicated virtual environment rather than modifying the agent's shared Python environment.\n4. Use an explicitly configured trusted package index or an internally controlled package mirror.\n5. Review and update pinned versions through a controlled maintenance process that includes vulnerability and license scanning.\n6. Separate optional OCR dependencies into a distinct, pinned dependency group.\n7. Record the exact installed versions in audit logs and surface them to the user before installation.\n8. Retain the existing user-confirmation and package-allowlist controls as defense-in-depth measures.\n]]>"
+                    }
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "securityScore": 35,
+              "primaryLanguage": "Markdown",
+              "llm": "gpt-5.6",
+              "startTime": 1789557022.8837934,
+              "endTime": 1789557107.212018
+            }
+          }
+        ]
+      },
+      "skillspector": {
+        "skill": {
+          "name": "xiaoyaoclaw-kb-retriever",
+          "source": "/tmp/clawhub-codex-scan-v574sv3d1pa4e1qq1jp69cwdxd8egc7k-Ry6kxR/clawscan-skillspector-1749258300/artifact",
+          "scanned_at": "2026-09-16T11:09:54.887490+00:00"
+        },
+        "risk_assessment": {
+          "score": 91,
+          "severity": "CRITICAL",
+          "recommendation": "DO_NOT_INSTALL",
+          "max_issue_severity": "HIGH"
+        },
+        "components": [
+          {
+            "path": "SKILL.md",
+            "type": "markdown",
+            "lines": 336,
+            "executable": false,
+            "size_bytes": 19815,
+            "source_url": null,
+            "source_identity": null,
+            "source_digest": null
+          },
+          {
+            "path": "references/excel_analysis.md",
+            "type": "markdown",
+            "lines": 129,
+            "executable": false,
+            "size_bytes": 2745,
+            "source_url": null,
+            "source_identity": null,
+            "source_digest": null
+          },
+          {
+            "path": "references/excel_reading.md",
+            "type": "markdown",
+            "lines": 72,
+            "executable": false,
+            "size_bytes": 1742,
+            "source_url": null,
+            "source_identity": null,
+            "source_digest": null
+          },
+          {
+            "path": "references/pdf_reading.md",
+            "type": "markdown",
+            "lines": 259,
+            "executable": false,
+            "size_bytes": 8498,
+            "source_url": null,
+            "source_identity": null,
+            "source_digest": null
+          },
+          {
+            "path": "scripts/build_index.py",
+            "type": "python",
+            "lines": 149,
+            "executable": true,
+            "size_bytes": 5513,
+            "source_url": null,
+            "source_identity": null,
+            "source_digest": null
+          },
+          {
+            "path": "scripts/convert_pdf_to_images.py",
+            "type": "python",
+            "lines": 35,
+            "executable": true,
+            "size_bytes": 1123,
+            "source_url": null,
+            "source_identity": null,
+            "source_digest": null
+          },
+          {
+            "path": "scripts/extract_pdf_text.py",
+            "type": "python",
+            "lines": 43,
+            "executable": true,
+            "size_bytes": 1357,
+            "source_url": null,
+            "source_identity": null,
+            "source_digest": null
+          },
+          {
+            "path": "templates/data_structure.md",
+            "type": "markdown",
+            "lines": 19,
+            "executable": false,
+            "size_bytes": 595,
+            "source_url": null,
+            "source_identity": null,
+            "source_digest": null
+          }
+        ],
+        "structured_summaries": [],
+        "issues": [
+          {
+            "id": "TP4",
+            "finding_id": "finding-1505fc92c7b94f52943eb311a479d4a2",
+            "category": "MCP Tool Poisoning",
+            "pattern": null,
+            "severity": "HIGH",
+            "confidence": 0.98,
+            "location": {
+              "file": "SKILL.md",
+              "start_line": 1,
+              "end_line": null
+            },
+            "finding": null,
+            "explanation": "The skill is presented primarily as a retrieval and QA tool, but it also documents index generation and other write-producing utilities. This mismatch can mislead operators into invoking a skill they believe is read-only, resulting in unexpected file creation within the knowledge base and weakening informed consent and least-privilege expectations.",
+            "remediation": "Align the description with actual behavior by explicitly stating that the skill can create indexes and temporary artifacts, or split those behaviors into separate skills. Mark write paths as optional maintenance operations with separate permissions and require explicit user approval before execution.",
+            "code_snippet": null,
+            "intent": null,
+            "tags": [
+              "ASI02",
+              "AML.T0080"
+            ],
+            "evidence": {
+              "code_path": "scripts/build_index.py",
+              "code_start_line": 1,
+              "code_end_line": 149,
+              "actual_behavior_summary": "A Python utility that scans a knowledge-base directory tree and generates or refreshes data_structure.md index skeleton files for directories, inferring purpose from README and listing subdirectories/files."
+            },
+            "match_fingerprint": null,
+            "occurrences": [
+              {
+                "file": "SKILL.md",
+                "start_line": 1,
+                "end_line": null
+              }
+            ]
+          },
+          {
+            "id": "TP4",
+            "finding_id": "finding-a74959b8f62e40fc9f363830699ffd9a",
+            "category": "MCP Tool Poisoning",
+            "pattern": null,
+            "severity": "HIGH",
+            "confidence": 0.98,
+            "location": {
+              "file": "SKILL.md",
+              "start_line": 1,
+              "end_line": null
+            },
+            "finding": null,
+            "explanation": "The skill is presented primarily as a retrieval and QA tool, but it also documents index generation and other write-producing utilities. This mismatch can mislead operators into invoking a skill they believe is read-only, resulting in unexpected file creation within the knowledge base and weakening informed consent and least-privilege expectations.",
+            "remediation": "Align the description with actual behavior by explicitly stating that the skill can create indexes and temporary artifacts, or split those behaviors into separate skills. Mark write paths as optional maintenance operations with separate permissions and require explicit user approval before execution.",
+            "code_snippet": null,
+            "intent": null,
+            "tags": [
+              "ASI02",
+              "AML.T0080"
+            ],
+            "evidence": {
+              "code_path": "scripts/convert_pdf_to_images.py",
+              "code_start_line": 1,
+              "code_end_line": 35,
+              "actual_behavior_summary": "A standalone utility script that converts each page of a PDF file into PNG images, optionally resizing pages to fit within a maximum dimension, and writes them to an output directory."
+            },
+            "match_fingerprint": null,
+            "occurrences": [
+              {
+                "file": "SKILL.md",
+                "start_line": 1,
+                "end_line": null
+              }
+            ]
+          },
+          {
+            "id": "TP4",
+            "finding_id": "finding-2a079e789ef44ea294549348aa49560c",
+            "category": "MCP Tool Poisoning",
+            "pattern": null,
+            "severity": "HIGH",
+            "confidence": 0.93,
+            "location": {
+              "file": "SKILL.md",
+              "start_line": 1,
+              "end_line": null
+            },
+            "finding": null,
+            "explanation": "The skill is presented primarily as a retrieval and QA tool, but it also documents index generation and other write-producing utilities. This mismatch can mislead operators into invoking a skill they believe is read-only, resulting in unexpected file creation within the knowledge base and weakening informed consent and least-privilege expectations.",
+            "remediation": "Align the description with actual behavior by explicitly stating that the skill can create indexes and temporary artifacts, or split those behaviors into separate skills. Mark write paths as optional maintenance operations with separate permissions and require explicit user approval before execution.",
+            "code_snippet": null,
+            "intent": null,
+            "tags": [
+              "ASI02",
+              "AML.T0080"
+            ],
+            "evidence": {
+              "code_path": "scripts/extract_pdf_text.py",
+              "code_start_line": 1,
+              "code_end_line": 43,
+              "actual_behavior_summary": "A standalone Python script that extracts text from a PDF file using pdfplumber and writes the extracted pages to a text file."
+            },
+            "match_fingerprint": null,
+            "occurrences": [
+              {
+                "file": "SKILL.md",
+                "start_line": 1,
+                "end_line": null
+              }
+            ]
+          },
+          {
+            "id": "LP3",
+            "finding_id": "finding-fdeeb79500f341839eb52136830e6632",
+            "category": "MCP Least Privilege",
+            "pattern": null,
+            "severity": "MEDIUM",
+            "confidence": 0.87,
+            "location": {
+              "file": "SKILL.md",
+              "start_line": 1,
+              "end_line": null
+            },
+            "finding": null,
+            "explanation": "The skill describes file read and file write capabilities, including generating indexes and temporary extraction outputs, but does not declare an explicit tool scope such as allowed-tools or permissions. That creates a policy gap where an agent may execute broader filesystem operations than reviewers or users expect, increasing the chance of unintended writes or overbroad access.",
+            "remediation": "Add an explicit tool/permission declaration that limits the skill to the minimum required capabilities, ideally separating read-only retrieval from optional write operations. Gate all write-capable actions behind a distinct permission or separate maintenance skill, and clearly require user confirmation before any file creation or modification.",
+            "code_snippet": null,
+            "intent": null,
+            "tags": [
+              "ASI02"
+            ],
+            "evidence": {},
+            "match_fingerprint": null,
+            "occurrences": [
+              {
+                "file": "SKILL.md",
+                "start_line": 1,
+                "end_line": null
+              }
+            ]
+          },
+          {
+            "id": "SQP-3",
+            "finding_id": "finding-33c3ac0e56ff4f8a86ab4e018ceb544d",
+            "category": null,
+            "pattern": null,
+            "severity": "MEDIUM",
+            "confidence": 0.9,
+            "location": {
+              "file": "references/excel_reading.md",
+              "start_line": 1,
+              "end_line": 72
+            },
+            "finding": null,
+            "explanation": "This markdown file presents all instructions and examples exclusively in Chinese, which can amount to a language-policy violation when no user opt-in or justification is provided. The file does not indicate that the skill is intentionally region-specific or offer an alternative language.",
+            "remediation": "Add a note that the skill is Chinese-language only for a justified audience, or provide multilingual support / an explicit user language choice in the documentation.",
+            "code_snippet": null,
+            "intent": null,
+            "tags": [
+              "llm-unconfirmed"
+            ],
+            "evidence": {},
+            "match_fingerprint": null,
+            "occurrences": [
+              {
+                "file": "references/excel_reading.md",
+                "start_line": 1,
+                "end_line": 72
+              }
+            ]
+          },
+          {
+            "id": "SQP-3",
+            "finding_id": "finding-aae6b277b89349dbbfb4618c8ae5b031",
+            "category": null,
+            "pattern": null,
+            "severity": "MEDIUM",
+            "confidence": 0.95,
+            "location": {
+              "file": "scripts/build_index.py",
+              "start_line": 2,
+              "end_line": 15
+            },
+            "finding": null,
+            "explanation": "The module docstring and all user-facing CLI text are written exclusively in Chinese, and the script does not offer any language selection or indicate that it is intentionally region-specific. This creates a natural-language locale policy concern because the skill effectively forces a specific language for interaction without user opt-in.",
+            "remediation": "Add a documented locale choice or command-line language option, or clearly justify/document that the tool is intended only for a Chinese-speaking environment. At minimum, provide bilingual user-facing messages or explicit locale constraints in the script documentation.",
+            "code_snippet": null,
+            "intent": null,
+            "tags": [
+              "llm-unconfirmed"
+            ],
+            "evidence": {},
+            "match_fingerprint": null,
+            "occurrences": [
+              {
+                "file": "scripts/build_index.py",
+                "start_line": 2,
+                "end_line": 15
+              }
+            ]
+          },
+          {
+            "id": "SDI-1",
+            "finding_id": "finding-2b617851bf664aa292124108063ebb03",
+            "category": null,
+            "pattern": null,
+            "severity": "MEDIUM",
+            "confidence": 0.95,
+            "location": {
+              "file": "scripts/build_index.py",
+              "start_line": 107,
+              "end_line": 138
+            },
+            "finding": null,
+            "explanation": "The manifest describes a local knowledge-base retriever focused on answering questions and progressive retrieval over files. This script instead traverses the knowledge-base and creates or overwrites data_structure.md files, which is a content-modifying indexing utility rather than retrieval or QA behavior.",
+            "remediation": "Either move this script out of the retriever skill into a separate indexing/initialization skill, or update the manifest to explicitly state that the skill can generate and maintain data_structure.md index files within the knowledge base.",
+            "code_snippet": null,
+            "intent": null,
+            "tags": [
+              "llm-unconfirmed"
+            ],
+            "evidence": {},
+            "match_fingerprint": null,
+            "occurrences": [
+              {
+                "file": "scripts/build_index.py",
+                "start_line": 107,
+                "end_line": 138
+              }
+            ]
+          },
+          {
+            "id": "SQP-3",
+            "finding_id": "finding-0d335bed03124c3e85932b457d819ddb",
+            "category": null,
+            "pattern": null,
+            "severity": "LOW",
+            "confidence": 0.93,
+            "location": {
+              "file": "references/excel_analysis.md",
+              "start_line": 1,
+              "end_line": 5
+            },
+            "finding": null,
+            "explanation": "This markdown file is natural-language instructional content, and it presents the skill in a single language only. The policy requires flagging language or locale constraints when the skill forces a specific language without user opt-in or justification.",
+            "remediation": "Add a note indicating the intended language audience and, if applicable, offer alternative language versions or state that the user may request the content in another language.",
+            "code_snippet": null,
+            "intent": null,
+            "tags": [
+              "llm-unconfirmed"
+            ],
+            "evidence": {},
+            "match_fingerprint": null,
+            "occurrences": [
+              {
+                "file": "references/excel_analysis.md",
+                "start_line": 1,
+                "end_line": 5
+              }
+            ]
+          },
+          {
+            "id": "SQP-2",
+            "finding_id": "finding-0711dcd4cd8e43d4b65eb8a3c957047a",
+            "category": null,
+            "pattern": null,
+            "severity": "LOW",
+            "confidence": 0.88,
+            "location": {
+              "file": "references/pdf_reading.md",
+              "start_line": 177,
+              "end_line": 177
+            },
+            "finding": null,
+            "explanation": "The document explicitly requires user confirmation before installing the standard PDF-processing packages, but the OCR section introduces additional package and binary installation steps without repeating the same confirmation requirement. In an agent skill that may drive automated local-environment actions, this inconsistency can lead to unapproved environment or system modification, especially because OCR setup may require both pip installs and platform-level package installation.",
+            "remediation": "Add the same explicit pre-installation rule to the OCR section: require the agent to inform the user that pip packages and, where applicable, system packages/binaries will be installed or configured, and obtain approval before proceeding. Also state that OCR dependencies are optional, only for scanned PDFs, and must not be installed automatically without consent.",
+            "code_snippet": null,
+            "intent": null,
+            "tags": [],
+            "evidence": {},
+            "match_fingerprint": null,
+            "occurrences": [
+              {
+                "file": "references/pdf_reading.md",
+                "start_line": 177,
+                "end_line": 177
+              }
+            ]
+          },
+          {
+            "id": "SDI-4",
+            "finding_id": "finding-8eec2a1e23dc4f69b4ce53d49ef54b44",
+            "category": null,
+            "pattern": null,
+            "severity": "LOW",
+            "confidence": 0.71,
+            "location": {
+              "file": "scripts/build_index.py",
+              "start_line": 2,
+              "end_line": 16
+            },
+            "finding": null,
+            "explanation": "The file documentation frames the script as an automatic index generator for the knowledge base, which conflicts with the surrounding skill intent of retrieval/QA over an existing directory structure. While the docstring accurately describes this file's behavior, it also highlights that the file's intent diverges from the declared skill purpose.",
+            "remediation": "Align the skill packaging so this utility lives in a setup/indexing skill, or revise the manifest/documentation to explicitly include index generation and maintenance as part of the skill's intended lifecycle.",
+            "code_snippet": null,
+            "intent": null,
+            "tags": [
+              "llm-unconfirmed"
+            ],
+            "evidence": {},
+            "match_fingerprint": null,
+            "occurrences": [
+              {
+                "file": "scripts/build_index.py",
+                "start_line": 2,
+                "end_line": 16
+              }
+            ]
+          },
+          {
+            "id": "SDI-1",
+            "finding_id": "finding-204dded2697849cfa366b119852e984d",
+            "category": null,
+            "pattern": null,
+            "severity": "LOW",
+            "confidence": 0.84,
+            "location": {
+              "file": "scripts/extract_pdf_text.py",
+              "start_line": 34,
+              "end_line": 38
+            },
+            "finding": null,
+            "explanation": "The manifest frames the skill as a local knowledge-base retriever and QA helper focused on progressive retrieval over local files. This helper script materially creates a new text file containing extracted PDF contents, which is a file-generation operation rather than retrieval itself. Although likely an implementation aid, it exceeds the purely retrieval-oriented behavior described at the manifest level.",
+            "remediation": "Clarify in the manifest that PDF handling may involve generating temporary or derived local text files for indexing/retrieval, or refactor the workflow to emit extracted text via a transient channel instead of persisting a new file.",
+            "code_snippet": null,
+            "intent": null,
+            "tags": [
+              "llm-unconfirmed"
+            ],
+            "evidence": {},
+            "match_fingerprint": null,
+            "occurrences": [
+              {
+                "file": "scripts/extract_pdf_text.py",
+                "start_line": 34,
+                "end_line": 38
+              }
+            ]
+          }
+        ],
+        "suppressed_count": 0,
+        "suppressed": [],
+        "metadata": {
+          "has_executable_scripts": true,
+          "skillspector_version": "2.11.2",
+          "llm_requested": true,
+          "llm_available": true,
+          "meta_analysis_applied": true,
+          "inference_usage": [
+            {
+              "node": "mcp_tool_poisoning",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1927,
+              "completion_tokens": 268,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 2195
+            },
+            {
+              "node": "mcp_tool_poisoning",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 823,
+              "completion_tokens": 249,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1072
+            },
+            {
+              "node": "mcp_tool_poisoning",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 931,
+              "completion_tokens": 244,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1175
+            },
+            {
+              "node": "semantic_developer_intent",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 8014,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 8028
+            },
+            {
+              "node": "semantic_developer_intent",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 2770,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 2784
+            },
+            {
+              "node": "semantic_developer_intent",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 2249,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 2263
+            },
+            {
+              "node": "semantic_developer_intent",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 4728,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 4742
+            },
+            {
+              "node": "semantic_developer_intent",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 3389,
+              "completion_tokens": 334,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 3723
+            },
+            {
+              "node": "semantic_developer_intent",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1932,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1946
+            },
+            {
+              "node": "semantic_developer_intent",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1753,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1767
+            },
+            {
+              "node": "semantic_developer_intent",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 2063,
+              "completion_tokens": 187,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 2250
+            },
+            {
+              "node": "semantic_quality_policy",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 7848,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 7862
+            },
+            {
+              "node": "semantic_quality_policy",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 3223,
+              "completion_tokens": 170,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 3393
+            },
+            {
+              "node": "semantic_quality_policy",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 2604,
+              "completion_tokens": 143,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 2747
+            },
+            {
+              "node": "semantic_quality_policy",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 2083,
+              "completion_tokens": 149,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 2232
+            },
+            {
+              "node": "semantic_quality_policy",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 4562,
+              "completion_tokens": 189,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 4751
+            },
+            {
+              "node": "semantic_quality_policy",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1587,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1601
+            },
+            {
+              "node": "semantic_quality_policy",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1766,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1780
+            },
+            {
+              "node": "semantic_quality_policy",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1897,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1911
+            },
+            {
+              "node": "semantic_security_discovery",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 7380,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 7394
+            },
+            {
+              "node": "semantic_security_discovery",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 2136,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 2150
+            },
+            {
+              "node": "semantic_security_discovery",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1615,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1629
+            },
+            {
+              "node": "semantic_security_discovery",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 4094,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 4108
+            },
+            {
+              "node": "semantic_security_discovery",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 2755,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 2769
+            },
+            {
+              "node": "semantic_security_discovery",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1298,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1312
+            },
+            {
+              "node": "semantic_security_discovery",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1429,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1443
+            },
+            {
+              "node": "semantic_security_discovery",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1119,
+              "completion_tokens": 14,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1133
+            },
+            {
+              "node": "meta_analyzer",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1999,
+              "completion_tokens": 195,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 2194
+            },
+            {
+              "node": "meta_analyzer",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1659,
+              "completion_tokens": 208,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1867
+            },
+            {
+              "node": "meta_analyzer",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 1580,
+              "completion_tokens": 246,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 1826
+            },
+            {
+              "node": "meta_analyzer",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 3532,
+              "completion_tokens": 265,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 3797
+            },
+            {
+              "node": "meta_analyzer",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 2724,
+              "completion_tokens": 479,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 3203
+            },
+            {
+              "node": "meta_analyzer",
+              "request_kind": "structured_output",
+              "provider": "openai",
+              "model": "gpt-5.4-2026-03-05",
+              "model_source": "provider_response",
+              "usage_source": "provider_response",
+              "prompt_tokens": 7177,
+              "completion_tokens": 686,
+              "cached_tokens": 0,
+              "reasoning_tokens": 0,
+              "total_tokens": 7863
+            }
+          ],
+          "llm_calls_attempted": 5,
+          "llm_calls_succeeded": 5
+        },
+        "execution_successful": true,
+        "analysis_completeness": {
+          "total_components": 8,
+          "scanned_components": 8,
+          "coverage_percent": 100,
+          "is_complete": false,
+          "status": "partial",
+          "execution_successful": true,
+          "fully_inspected_files": 8,
+          "partially_inspected_files": 0,
+          "entirely_uninspected_files": 0,
+          "ledger_exceptions": [
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 5,
+              "end_line": 5,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 6,
+              "end_line": 6,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 8,
+              "end_line": 8,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 10,
+              "end_line": 10,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 12,
+              "end_line": 12,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 25,
+              "end_line": 25,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 26,
+              "end_line": 26,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 30,
+              "end_line": 30,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 52,
+              "end_line": 52,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 60,
+              "end_line": 60,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 65,
+              "end_line": 65,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 69,
+              "end_line": 69,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 84,
+              "end_line": 84,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 90,
+              "end_line": 90,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 91,
+              "end_line": 91,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 105,
+              "end_line": 105,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 112,
+              "end_line": 112,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 116,
+              "end_line": 116,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 152,
+              "end_line": 152,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 252,
+              "end_line": 252,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 317,
+              "end_line": 317,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 328,
+              "end_line": 328,
+              "fatal": false
+            },
+            {
+              "outcome": "partial",
+              "phase": "reference_resolution",
+              "reason_code": "reference_unresolved",
+              "message": "A local path-like reference could not be resolved unambiguously.",
+              "path": "SKILL.md",
+              "start_line": 329,
+              "end_line": 329,
+              "fatal": false
+            }
+          ],
+          "scope_exclusions": [],
+          "analyzer_statuses": [
+            {
+              "analyzer_id": "artifact_integrity",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "behavioral_ast",
+              "status": "completed",
+              "planned_work": 3,
+              "completed": 3,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "behavioral_taint_tracking",
+              "status": "completed",
+              "planned_work": 3,
+              "completed": 3,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "bundled_execution_surface",
+              "status": "not_applicable",
+              "planned_work": 0,
+              "completed": 0,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0,
+              "reason_code": "no_applicable_files",
+              "message": "No files matched this analyzer's applicability contract."
+            },
+            {
+              "analyzer_id": "mcp_least_privilege",
+              "status": "completed",
+              "planned_work": 4,
+              "completed": 4,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "mcp_rug_pull",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "mcp_tool_poisoning",
+              "status": "completed",
+              "planned_work": 4,
+              "completed": 4,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "meta_analyzer",
+              "status": "completed",
+              "planned_work": 6,
+              "completed": 6,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "semantic_developer_intent",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "semantic_quality_policy",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "semantic_security_discovery",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_agent_snooping",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_anti_refusal",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_data_exfiltration",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_deserialization",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_excessive_agency",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_harmful_content",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_memory_poisoning",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_output_handling",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_privilege_escalation",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_prompt_injection",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_rogue_agent",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_ssrf",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_supply_chain",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_system_prompt_leakage",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_patterns_tool_misuse",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            },
+            {
+              "analyzer_id": "static_yara",
+              "status": "completed",
+              "planned_work": 8,
+              "completed": 8,
+              "partial": 0,
+              "skipped": 0,
+              "failed": 0,
+              "unaccounted": 0
+            }
+          ],
+          "references": [
+            {
+              "source_path": "SKILL.md",
+              "line": 5,
+              "column": 4,
+              "evidence": "(md/pdf/xlsx): hierarchical data_structure.md index navigation + progressive",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 6,
+              "column": 63,
+              "evidence": "retrieval, core retrieval zero-dependency, Windows & macOS (PDF/Excel need",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 8,
+              "column": 6,
+              "evidence": "to retrieve/answer from a knowledge base directory (knowledge base/retrieve/",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 10,
+              "column": 43,
+              "evidence": "核心流程：(1)分层 data_structure.md 索引导航 (2)遇到 PDF/Excel 时必须先读取",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 12,
+              "column": 3,
+              "evidence": "grep/Select-String、read、pdfplumber、pandas 进行渐进式检索，避免整文件加载。",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 25,
+              "column": 44,
+              "evidence": "本地知识库检索——分层 data_structure.md 索引导航 + 渐进式检索（md/pdf/xlsx），核心检索零外部依赖零 API key。",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 26,
+              "column": 32,
+              "evidence": "Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按需安装 Python 包，见下文「能力范围」与「依赖自安装」）。",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 30,
+              "column": 37,
+              "evidence": "**身份**：本地知识库检索 / 问答工具。主流程**只读**——检索 md/pdf/xlsx，不修改任何源文件。",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 33,
+              "column": 4,
+              "evidence": "- `scripts/build_index.py` → 生成 / 更新 `data_structure.md` 分层索引（写入知识库根目录及各子目录）",
+              "target_path": "scripts/build_index.py",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 33,
+              "column": 39,
+              "evidence": "- `scripts/build_index.py` → 生成 / 更新 `data_structure.md` 分层索引（写入知识库根目录及各子目录）",
+              "target_path": "templates/data_structure.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 34,
+              "column": 4,
+              "evidence": "- `scripts/extract_pdf_text.py` → 提取 PDF 文本为独立 `.txt` 文件（写入临时目录，源 PDF 不动）",
+              "target_path": "scripts/extract_pdf_text.py",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 35,
+              "column": 4,
+              "evidence": "- `scripts/convert_pdf_to_images.py` → 扫描件转图片（OCR 可选路径，产物进临时目录）",
+              "target_path": "scripts/convert_pdf_to_images.py",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 47,
+              "column": 13,
+              "evidence": "- 根目录有一个 `data_structure.md`，说明主要的「领域目录」及其用途。",
+              "target_path": "templates/data_structure.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 48,
+              "column": 20,
+              "evidence": "- 每个领域目录下可以有自己的 `data_structure.md`，说明该目录下有哪些子目录/文件，以及各自用途。",
+              "target_path": "templates/data_structure.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 49,
+              "column": 21,
+              "evidence": "- 更深一层的子目录也可以继续有 `data_structure.md`，形成多级索引树。",
+              "target_path": "templates/data_structure.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 52,
+              "column": 46,
+              "evidence": "- 如果用户在对话中明确指定了其他路径（例如“我的知识库在 /data/kb”或“用 ./docs 这个目录作为知识库”），则以用户指定的路径作为根目录。",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 60,
+              "column": 24,
+              "evidence": "- 根目录优先听用户：如果用户给了路径（如 `./docs`、`./knowledge-personal`），直接用用户提供的路径。",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 60,
+              "column": 33,
+              "evidence": "- 根目录优先听用户：如果用户给了路径（如 `./docs`、`./knowledge-personal`），直接用用户提供的路径。",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 65,
+              "column": 7,
+              "evidence": "- macOS/Linux：`test -d knowledge && echo exists`",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 68,
+              "column": 64,
+              "evidence": "- Windows：`Get-ChildItem -Path \"knowledge\" -Recurse -Filter \"data_structure.md\" -File | Select-Object -ExpandProperty FullName`",
+              "target_path": "templates/data_structure.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 69,
+              "column": 5,
+              "evidence": "- macOS/Linux：`find knowledge -name \"data_structure.md\" -type f`",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 69,
+              "column": 40,
+              "evidence": "- macOS/Linux：`find knowledge -name \"data_structure.md\" -type f`",
+              "target_path": "templates/data_structure.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 82,
+              "column": 10,
+              "evidence": "- ❌ 在未读取 references/pdf_reading.md 的情况下直接尝试处理 PDF",
+              "target_path": "references/pdf_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 83,
+              "column": 10,
+              "evidence": "- ❌ 在未读取 references/excel_reading.md 的情况下直接尝试处理 Excel",
+              "target_path": "references/excel_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 84,
+              "column": 20,
+              "evidence": "- ❌ 跳过文件处理步骤，直接对原始 PDF/Excel 进行检索",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 90,
+              "column": 17,
+              "evidence": "| `Read <file> (limit/offset)` | `read` 工具（path + limit + offset） | 原生支持窗口读 |",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 91,
+              "column": 20,
+              "evidence": "| `Grep <pattern> (include/path)` | `exec`：Windows `Select-String` / macOS `grep` | 见下方命令模板 |",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 94,
+              "column": 53,
+              "evidence": "| `pdftotext` | Python pdfplumber（pip 安装，双平台统一） | 见 references/pdf_reading.md |",
+              "target_path": "references/pdf_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 95,
+              "column": 51,
+              "evidence": "| pandas（Excel） | Python pandas（pip 安装，双平台统一） | 见 references/excel_reading.md |",
+              "target_path": "references/excel_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 105,
+              "column": 3,
+              "evidence": "- macOS/Linux：",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 112,
+              "column": 3,
+              "evidence": "- macOS/Linux：`find \"<dir>\" -type f | head -100`",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 116,
+              "column": 3,
+              "evidence": "- macOS/Linux：`test -d \"<dir>\" && echo exists`",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 133,
+              "column": 14,
+              "evidence": "2. 分层查看目录索引 `data_structure.md`",
+              "target_path": "templates/data_structure.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 136,
+              "column": 21,
+              "evidence": "- 在当前工作目录下，如果存在 `data_structure.md`：",
+              "target_path": "templates/data_structure.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 143,
+              "column": 41,
+              "evidence": "- 递归进入该子目录，将其作为新的「当前工作目录」，继续查找其中的 `data_structure.md` 并重复上述过程。",
+              "target_path": "templates/data_structure.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 152,
+              "column": 16,
+              "evidence": "3. 学习文件处理方法（遇到 PDF/Excel 时强制执行）",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 154,
+              "column": 19,
+              "evidence": "- **必须先读取** [references/pdf_reading.md](references/pdf_reading.md)（位于本 Skill 目录下，不是 Knowledge 目录下）学习提取方法",
+              "target_path": "references/pdf_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 154,
+              "column": 46,
+              "evidence": "- **必须先读取** [references/pdf_reading.md](references/pdf_reading.md)（位于本 Skill 目录下，不是 Knowledge 目录下）学习提取方法",
+              "target_path": "references/pdf_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 157,
+              "column": 19,
+              "evidence": "- **必须先读取** [references/excel_reading.md](references/excel_reading.md)学习读取方法",
+              "target_path": "references/excel_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 157,
+              "column": 48,
+              "evidence": "- **必须先读取** [references/excel_reading.md](references/excel_reading.md)学习读取方法",
+              "target_path": "references/excel_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 158,
+              "column": 19,
+              "evidence": "- **必须先读取** [references/excel_analysis.md](references/excel_analysis.md)学习分析方法",
+              "target_path": "references/excel_analysis.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 158,
+              "column": 49,
+              "evidence": "- **必须先读取** [references/excel_analysis.md](references/excel_analysis.md)学习分析方法",
+              "target_path": "references/excel_analysis.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 224,
+              "column": 10,
+              "evidence": "- 根据 `data_structure.md` 和文件名、路径判断相关度",
+              "target_path": "templates/data_structure.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 242,
+              "column": 30,
+              "evidence": "- 在处理任何 PDF 之前，**必须先读取** [references/pdf_reading.md](references/pdf_reading.md)（位于本 Skill 目录下，不是 Knowledge 目录下）",
+              "target_path": "references/pdf_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 242,
+              "column": 57,
+              "evidence": "- 在处理任何 PDF 之前，**必须先读取** [references/pdf_reading.md](references/pdf_reading.md)（位于本 Skill 目录下，不是 Knowledge 目录下）",
+              "target_path": "references/pdf_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 246,
+              "column": 10,
+              "evidence": "- 根据 `data_structure.md` 中的描述，选择最相关的 1-3 个文件",
+              "target_path": "templates/data_structure.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 252,
+              "column": 8,
+              "evidence": "- Windows/macOS 通用：`python extract_pdf.py input.pdf output.txt`（脚本见 references/pdf_reading.md）",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 252,
+              "column": 74,
+              "evidence": "- Windows/macOS 通用：`python extract_pdf.py input.pdf output.txt`（脚本见 references/pdf_reading.md）",
+              "target_path": "references/pdf_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 267,
+              "column": 9,
+              "evidence": "- [references/excel_reading.md](references/excel_reading.md) - 学习如何读取工作表（位于本 Skill 目录下，不是 Knowledge 目录下）",
+              "target_path": "references/excel_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 267,
+              "column": 38,
+              "evidence": "- [references/excel_reading.md](references/excel_reading.md) - 学习如何读取工作表（位于本 Skill 目录下，不是 Knowledge 目录下）",
+              "target_path": "references/excel_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 268,
+              "column": 9,
+              "evidence": "- [references/excel_analysis.md](references/excel_analysis.md) - 学习如何分析数据（位于本 Skill 目录下，不是 Knowledge 目录下）",
+              "target_path": "references/excel_analysis.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 268,
+              "column": 39,
+              "evidence": "- [references/excel_analysis.md](references/excel_analysis.md) - 学习如何分析数据（位于本 Skill 目录下，不是 Knowledge 目录下）",
+              "target_path": "references/excel_analysis.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 272,
+              "column": 10,
+              "evidence": "- 根据 `data_structure.md` 和文件/工作表命名，选择最相关的表",
+              "target_path": "templates/data_structure.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 290,
+              "column": 23,
+              "evidence": "- **在处理 PDF 前必须先读取** [references/pdf_reading.md](references/pdf_reading.md) 学习处理方法",
+              "target_path": "references/pdf_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 290,
+              "column": 50,
+              "evidence": "- **在处理 PDF 前必须先读取** [references/pdf_reading.md](references/pdf_reading.md) 学习处理方法",
+              "target_path": "references/pdf_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 296,
+              "column": 6,
+              "evidence": "- [references/excel_reading.md](references/excel_reading.md) - 学习读取方法",
+              "target_path": "references/excel_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 296,
+              "column": 35,
+              "evidence": "- [references/excel_reading.md](references/excel_reading.md) - 学习读取方法",
+              "target_path": "references/excel_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 297,
+              "column": 6,
+              "evidence": "- [references/excel_analysis.md](references/excel_analysis.md) - 学习分析方法",
+              "target_path": "references/excel_analysis.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 297,
+              "column": 36,
+              "evidence": "- [references/excel_analysis.md](references/excel_analysis.md) - 学习分析方法",
+              "target_path": "references/excel_analysis.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 312,
+              "column": 75,
+              "evidence": "- 扫描件 OCR 属于可选路径：仅当 PDF 无文本层且用户明确要求时才安装 pytesseract + pdf2image（需额外系统依赖，见 references/pdf_reading.md）——同样需先告知用户并征得同意",
+              "target_path": "references/pdf_reading.md",
+              "status": "resolved",
+              "disposition": "analyzed"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 317,
+              "column": 17,
+              "evidence": "- **Python**：用于 PDF/Excel 结构化处理（pdfplumber / pandas），双平台统一",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 328,
+              "column": 10,
+              "evidence": "- 来源：design/api_gateway.md 第 100 行附近",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            },
+            {
+              "source_path": "SKILL.md",
+              "line": 329,
+              "column": 10,
+              "evidence": "- 来源：reports/2023_Q1_sales.xlsx Summary 工作表",
+              "target_path": null,
+              "status": "missing",
+              "disposition": "partial"
+            }
+          ],
+          "limitations": [],
+          "findings_before_filtering": 11,
+          "findings_after_filtering": 11
+        }
+      }
+    }
+  },
+  "signature": {
+    "status": "unsigned"
+  }
+}
