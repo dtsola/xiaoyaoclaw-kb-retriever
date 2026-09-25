@@ -7,9 +7,12 @@ description: >
   on-demand pip packages, see skill body). Retrieval itself is read-only; the
   skill also ships optional maintenance scripts that WRITE files inside the
   knowledge base — scripts/build_index.py generates/updates data_structure.md
-  index files, and scripts/extract_pdf_text.py writes derived .txt files — and
-  those run only when the user asks for indexing/PDF text extraction and
-  confirms the write. Use when user asks to retrieve/answer from a knowledge
+  index files, scripts/extract_pdf_text.py writes derived .txt files, and
+  scripts/convert_pdf_to_images.py writes page PNGs for the optional OCR path —
+  and those run only when the user asks for indexing/PDF text extraction and
+  confirms the write. Every write target is resolved to its real path and must
+  stay inside the knowledge-base root (symlinks cannot redirect a write outside).
+  Use when user asks to retrieve/answer from a knowledge
   base directory (knowledge base/retrieve/ RAG over local files)，
   或明确要求生成/更新索引、把 PDF 转文本。中文：面向本地知识库目录的检索和问答助手。
   核心流程：(1)分层 data_structure.md 索引导航 (2)遇到 PDF/Excel 时必须先读取
@@ -37,6 +40,24 @@ allowed-tools:
 
 本地知识库检索——分层 data_structure.md 索引导航 + 渐进式检索（md/pdf/xlsx），核心检索零外部依赖零 API key。
 Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按需安装 Python 包，见下文「能力范围」与「依赖自安装」）。
+
+## 触发条件（边界明确，避免误触发）
+
+**✅ 应当触发**（用户点名了知识库 + 明确的检索/维护动作）：
+- 「从我的知识库目录 `<路径>` 里查一下 ……」/「`<路径>` 里有没有关于 …… 的资料」
+- 「检索 / 查资料 / 问答：本地知识库 `<路径>` 的 ……」
+- 「给 `<路径>` 建/补索引」「把 `<路径>` 里的 `xx.pdf` 转成文本」（**维护类写操作，需再确认一次**）
+
+**🚫 不应触发**（示例，用于收窄触发面）：
+- 泛泛的「帮我查一下 ……」而**没有**给出知识库目录或明确的检索意图 → 先问清目录，不要自行挑目录开跑
+- 通用闲聊、写代码、总结当前对话、解释概念等与本地知识库无关的请求
+- 抓取网页、搜索互联网（本技能不联网；网页剪藏用 `xiaoyaoclaw-web-clipper`）
+- 整理/蒸馏记忆、维护工作区结构（分别用 `xiaoyaoclaw-memory-distill` / `xiaoyaoclaw-workspace-initializer`）
+- 「看看我电脑里有什么」这类开放式全盘浏览 → 不接受；只处理用户显式指定的知识库根目录
+
+**语言策略（Language）**：本技能**语言可选**——默认用中文回复，用户用英文或其它语言提问则跟随该语言。
+仓库内的示例文本、索引模板（`templates/data_structure.md`）与 README 插图中的说明文字包含中文，
+属**示例与品牌素材**，不构成对使用者语言的限制；索引文件的段落标题（Purpose / Files / Coverage）本身是英文。
 
 ## 能力范围与写操作声明（权限透明）
 
@@ -154,15 +175,19 @@ python scripts/search_kb.py <知识库根目录> --list --max-files 100    # 只
 
 **默认只读**：检索、问答、列举文件都只读，不改动知识库任何内容。
 
-**可写操作（仅两项，且必须由用户点名并确认）**：
+**可写操作（仅三项，且必须由用户点名并确认）**：
 
 | 操作 | 写什么 | 触发条件 |
 |---|---|---|
 | 生成/更新索引 | 各目录下的 `data_structure.md` | 用户明确要求「建/补索引」；跑之前先说清「将写入哪些目录」 |
 | PDF 转文本 | 派生的 `.txt` 文件（源 PDF 不动） | 用户明确要求把 PDF 内容落成文本；先说清写入位置 |
+| PDF 转图片（OCR 可选路径） | 每页 `page_N.png`（源 PDF 不动） | 用户明确要求处理扫描件；先说清写入目录；需先确认安装 `pdf2image` + poppler |
+
+> ⚠️ **索引生成会写盘**：`scripts/build_index.py` 会在知识库各目录**新建/覆盖 `data_structure.md`**（`--force` 时覆盖已有索引）。它不是检索动作，必须由用户点名「建/补索引」后才运行。
 
 **写入硬约束**：只写**知识库根目录内**的文件；不删任何文件；不改知识库之外的文件；写前打印目标路径。
-**权限对应**：`Read`/`Glob`/`Grep`/`Bash` 用于检索与只读命令；`Write`/`Edit` 仅用于上面两项写操作。本技能不读环境变量、不读凭据、不联网。
+**符号链接防线**：所有写入目标都按**真实路径**（`realpath`）校验，解析符号链接后仍须落在知识库根内，否则拒绝；遍历时**不进入符号链接目录**（`scripts/pathguard.py` 统一把关，fail closed）。
+**权限对应**：`Read`/`Glob`/`Grep`/`Bash` 用于检索与只读命令；`Write`/`Edit` 仅用于上面三项写操作。本技能不读环境变量、不读凭据、不联网。
 
 ## 总体流程
 

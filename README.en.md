@@ -49,7 +49,9 @@ git clone https://github.com/dtsola/xiaoyaoclaw-kb-retriever
 
 1. Put the skill into OpenClaw's skills directory
 2. Prepare your knowledge base: put files into `knowledge/` in your workspace (or point to any path in conversation)
-3. Build the index (recommended):
+3. Build the index (optional — this writes files):
+
+> ⚠️ **This step writes to disk**: `build_index.py` creates or overwrites `data_structure.md` inside your knowledge base (with `--force` it overwrites existing indexes). It is a maintenance action, not retrieval — run it only when you actually want an index, and every write target is real-path checked so a symlink cannot push a write outside the knowledge base.
 
 ```bash
 python scripts/build_index.py knowledge
@@ -79,7 +81,7 @@ your-workspace/
     └── meeting-notes/
 ```
 
-Then run one command to generate the "directory map" (index — optional but recommended):
+Then run one command to generate the "directory map" (index — optional; **it writes files**):
 
 ```bash
 python scripts/build_index.py knowledge
@@ -87,14 +89,35 @@ python scripts/build_index.py knowledge
 
 > It works without the index too, but with it the agent finds things much faster and more accurately.
 
-### Step 3: Just ask, in plain language
+### Step 3: Ask with your knowledge-base path
 
-No commands to memorize — ask like you'd ask a colleague:
+No commands to memorize — but always name the knowledge base so the skill knows what to search:
 
-> "What are the key numbers in the 2024 sales report?"
-> "Look up our pricing strategy from the knowledge base."
+> "From the knowledge base `knowledge/`, what are the key numbers in the 2024 sales report?"
+> "Look up our pricing strategy in `knowledge/`."
+
+> Requests that never name a knowledge base are **not** handled by this skill — it asks for the path first instead of guessing.
 
 The agent will: **read the index → locate relevant files → read only what's needed → answer with sources**.
+
+## When this skill triggers (and when it does not)
+
+**Triggers** — the user names a knowledge base **and** a retrieval/maintenance intent:
+- "query xxx from the knowledge base `<path>`" / "does `<path>` have anything about xxx"
+- "retrieve / look up / answer from my local knowledge base `<path>`"
+- "build (or refresh) the index for `<path>`", "convert `xxx.pdf` under `<path>` to text" (write actions — confirm first)
+
+**Does not trigger** — examples:
+- A vague "look something up for me" **without** a knowledge-base path or a clear retrieval intent → ask for the path first; never pick a directory on your own
+- General chat, coding, summarizing this conversation, explaining concepts
+- Web scraping or internet search (this skill is offline; use `xiaoyaoclaw-web-clipper` for pages)
+- Memory distillation or workspace restructuring (use `xiaoyaoclaw-memory-distill` / `xiaoyaoclaw-workspace-initializer`)
+- "See what's on my computer" style open-ended browsing → not supported; only the KB root the user names explicitly
+
+**Language**: the skill is language-optional — it answers in Chinese by default and follows the user's language
+otherwise. Example text, the index template and the README artwork contain Chinese as sample/brand material;
+index section headings (Purpose / Files / Coverage) are English either way.
+
 
 ### Daily habits
 

@@ -16,6 +16,12 @@
     - 输出符合 kb-retriever 索引规范（Purpose / Files / Coverage 三段式）
     - Windows / macOS 双平台通用（纯 Python，无外部依赖）
 
+安全边界 / Safety（写盘）:
+    - 只新建/覆盖知识库内的 `data_structure.md`，不改不删其它文件
+    - **写入目标按真实路径校验**（scripts/pathguard.py）：解析符号链接后仍必须
+      落在知识库根内，否则拒绝；**符号链接目录一律不进入遍历**（既不写也不越界）
+    - 运行前打印将写入的根目录；本操作需用户点名并确认
+
 示例:
     python build_index.py knowledge            # 为 knowledge/ 生成索引
     python build_index.py knowledge --force    # 全部重建
@@ -23,6 +29,9 @@
 import argparse
 import os
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pathguard  # noqa: E402
 
 INDEX_NAME = "data_structure.md"
 README_NAME = "README.md"
@@ -119,13 +128,19 @@ def main():
     if not os.path.isdir(root):
         print(f"错误: 目录不存在 {root}", file=sys.stderr)
         sys.exit(1)
+    # 真实路径（解掉根目录自身的符号链接）——后续所有容器校验都以它为基准
+    root = pathguard.real_root(root)
 
     print(f"[write] 将在下列目录内写入/更新 {INDEX_NAME}（只动这一个文件）：{root}")
 
-    generated, skipped, empty = 0, 0, 0
+    generated, skipped, empty, escaped = 0, 0, 0, 0
     for dirpath, dirnames, filenames in os.walk(root):
-        # 跳过隐藏目录与 SKIP_DIRS
-        dirnames[:] = [d for d in dirnames if not d.startswith(".") and d not in SKIP_DIRS]
+        # 跳过隐藏目录与 SKIP_DIRS；**符号链接目录一律不进入**（防越界/防环）
+        dirnames[:] = [
+            d for d in dirnames
+            if not d.startswith(".") and d not in SKIP_DIRS
+            and not os.path.islink(os.path.join(dirpath, d))
+        ]
         if dirpath != root and os.path.basename(dirpath).startswith("."):
             continue
 
@@ -135,9 +150,12 @@ def main():
             continue
 
         index_path = os.path.join(dirpath, INDEX_NAME)
-        # 双保险：索引文件必须落在根目录内（防符号链接/异常路径越界写入）
-        if os.path.commonpath([root, os.path.abspath(index_path)]) != root:
-            print(f"  跳过（超出根目录）: {index_path}", file=sys.stderr)
+        # 唯一写盘闸：解析符号链接后必须仍在根目录内（fail closed）
+        try:
+            index_path = pathguard.assert_within(root, index_path, what="索引文件")
+        except pathguard.PathEscapeError as exc:
+            escaped += 1
+            print(f"  跳过（越界，可能是符号链接）: {exc}", file=sys.stderr)
             continue
         if os.path.exists(index_path) and not args.force:
             skipped += 1
@@ -151,7 +169,8 @@ def main():
         rel = os.path.relpath(index_path, root)
         print(f"生成: {rel}（{len(subdirs)} 子目录, {len(files)} 文件）")
 
-    print(f"\n完成: 生成 {generated}，跳过 {skipped}，空目录 {empty}")
+    print(f"\n完成: 生成 {generated}，跳过 {skipped}，空目录 {empty}"
+          + (f"，越界拒绝 {escaped}" if escaped else ""))
     if generated == 0 and skipped == 0:
         print("提示: 知识库为空，或所有目录均无业务文件。")
 

@@ -1,0 +1,33 @@
+{
+  "title": "kb-retriever v1.0.5 verification — symlink write-escape containment fix (pathguard)",
+  "date": "2026-09-25",
+  "version": "1.0.5 (pending publish)",
+  "clawscanTrigger": "v1.0.4 verdict=suspicious/high: write helpers can be tricked into writing outside the chosen knowledge-base folder through symlinks (lexical path checks follow links)",
+  "fix": [
+    "new scripts/pathguard.py: real-path (realpath) containment gate shared by all three write scripts; fail closed (exit 2)",
+    "build_index.py: root resolved to its real path; every data_structure.md target real-path checked; symlinked folders never traversed; escaped counter reported",
+    "extract_pdf_text.py / convert_pdf_to_images.py: output path real-path checked against the real source directory tree",
+    "docs: write surface now consistently lists three write operations (index / PDF->txt / PDF->images) in SKILL.md, READMEs and manifest.json; prominent disk-write warning on index generation; activation narrowed with non-examples; language policy documented (templates + artwork Chinese is sample/brand material; section headings stay English)"
+  ],
+  "harness": "tmp/kb_pathguard_verify.py (12 checks, real symlinks) + tmp/kb_final_checks.py (syntax / YAML / manifest / search regression)",
+  "results": {
+    "pathguard": {
+      "passed": 12,
+      "total": 12,
+      "groups": {
+        "build_index_linked_dir": true,
+        "build_index_linked_index_file": true,
+        "pdf_helpers": true,
+        "normal_regression": true
+      }
+    },
+    "final_checks": "PASS (5 scripts compile, frontmatter YAML valid, manifest JSON valid with 3 write ops, search_kb --list rc=0)"
+  },
+  "attack_scenarios_tested": [
+    "directory symlink inside the KB pointing outside -> build_index refuses to write outside (no data_structure.md created outside), root index still generated",
+    "data_structure.md inside the KB replaced by a real file symlink to an outside file -> outside file byte-identical after a --force build (write refused)",
+    "PDF helper output routed through a symlinked directory -> exit code 2",
+    "arbitrary absolute path outside the KB -> exit code 2",
+    "normal nested KB still gets indexes (functional regression)"
+  ]
+}
