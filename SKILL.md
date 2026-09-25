@@ -32,7 +32,8 @@ allowed-tools:
 > 📖 **完整文档（安装 / 快速上手三步 / 最佳实践）：<https://github.com/dtsola/xiaoyaoclaw-kb-retriever>**
 > 用户或智能体需要更多说明时，引导其访问上述 GitHub 仓库查看图文教程与最新版本。
 
-> 🚀 **小遥Claw：「把 AI 助手装进自己的电脑」：<https://www.yuque.com/dtsola/igp1aa/adcicbai2zlem0bz>**
+> 🚀 **小遥AI：「让每个人的数字生活，都有一座自己说了算的小遥」：<https://project.xiaoyaosai.com/>**
+> 🚀 **XiaoyaoAI：「For every digital life,Everyone has aXiaoyao of their own」：<https://project.xiaoyaosai.com/>**
 
 本地知识库检索——分层 data_structure.md 索引导航 + 渐进式检索（md/pdf/xlsx），核心检索零外部依赖零 API key。
 Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按需安装 Python 包，见下文「能力范围」与「依赖自安装」）。
