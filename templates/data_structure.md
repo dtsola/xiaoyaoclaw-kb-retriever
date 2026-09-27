@@ -11,12 +11,6 @@
 ## Coverage
 <时间范围、版本、来源，帮助 agent 判断优先级 / time range, version, provenance — helps the agent rank sources>
 
-<!--
-说明 / Notes:
-- 每个含内容的目录放一个 data_structure.md，形成分层索引树
-  (one data_structure.md per non-empty folder; together they form the layered index tree)
-- 可用 scripts/build_index.py 自动生成骨架：python build_index.py <知识库根目录>
-  (scripts/build_index.py can generate the skeleton: python build_index.py <kb-root>)
-- 段落标题（Purpose / Files / Coverage）保持英文，正文语言可自由选择（中文/英文/其它）
-  (keep the section headings in English; write the body in whichever language you prefer)
--->
+> **模板说明（可见备注，复制到知识库后可删除本段）**：每个含内容的目录放一个 `data_structure.md`，形成分层索引树；
+> 可用 `scripts/build_index.py` 自动生成骨架：`python build_index.py <知识库根目录>`；
+> 段落标题（Purpose / Files / Coverage）保持英文，正文语言可自由选择（中文 / 英文 / 其它）。

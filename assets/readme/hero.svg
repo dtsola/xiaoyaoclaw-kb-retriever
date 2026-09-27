@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="hero-title hero-desc">
   <title id="hero-title">OpenClaw Knowledge Base Retriever</title>
-  <desc id="hero-desc">Local knowledge-base retrieval over md/pdf/xlsx: hierarchical data_structure.md index navigation + progressive search, zero dependencies, Windows &amp; macOS ready. Shows a terminal panel navigating a layered knowledge index and retrieving a sourced answer.</desc>
+  <desc id="hero-desc">Local knowledge-base retrieval over md/pdf/xlsx: hierarchical data_structure.md index navigation + progressive search, zero dependencies, Windows &amp; macOS ready. Shows a terminal panel navigating a layered knowledge index and retrieving a sourced answer. This is bilingual brand artwork (English + Chinese): the skill's user-facing language is selectable and follows the user, and the Chinese text here is brand/sample material, not a locale restriction.</desc>
 
   <rect width="1200" height="360" rx="20" fill="#0d1117"/>
   <g id="title-block" transform="translate(56 40)">

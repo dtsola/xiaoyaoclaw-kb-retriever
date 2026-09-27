@@ -68,7 +68,7 @@ if __name__ == "__main__":
 ```
 
 **使用流程**：
-1. `python scripts/extract_pdf_text.py input.pdf output.txt`（提取到临时文件，不占 token）
+1. `python scripts/extract_pdf_text.py input.pdf output.txt`（生成派生文本文件，与源 PDF 同目录；不占 token）
 2. 用 exec（Select-String / grep）对生成的文本文件检索关键词
 3. 只读取匹配部分的上下文，而非全文
 

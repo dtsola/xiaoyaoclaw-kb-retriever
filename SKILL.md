@@ -55,9 +55,12 @@ Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按
 - 整理/蒸馏记忆、维护工作区结构（分别用 `xiaoyaoclaw-memory-distill` / `xiaoyaoclaw-workspace-initializer`）
 - 「看看我电脑里有什么」这类开放式全盘浏览 → 不接受；只处理用户显式指定的知识库根目录
 
-**语言策略（Language）**：本技能**语言可选**——默认用中文回复，用户用英文或其它语言提问则跟随该语言。
-仓库内的示例文本、索引模板（`templates/data_structure.md`）与 README 插图中的说明文字包含中文，
-属**示例与品牌素材**，不构成对使用者语言的限制；索引文件的段落标题（Purpose / Files / Coverage）本身是英文。
+**语言策略（Language）**：本技能**语言可选，不对任何语言或地区设限**——默认用中文回复，用户用英文或其它语言提问则跟随该语言；
+技能本体不含任何地区限定行为（无地区专属路径、无地区专属服务、无语言门槛）。
+仓库内随包分发的资源——示例文本、索引模板（`templates/data_structure.md`）与 README 品牌插图
+（`assets/readme/hero.svg`、`assets/readme/community-qr.png`）——其中出现的中文属**示例与品牌双语素材**，
+不构成对使用者语言或地区的限制（该 SVG 已在 `<desc>` 中声明为双语品牌素材）；索引文件的段落标题
+（Purpose / Files / Coverage）本身固定为英文。所有面向用户的运行时文案均可按用户语言调整。
 
 ## 能力范围与写操作声明（权限透明）
 
@@ -65,13 +68,13 @@ Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按
 
 **可选写操作**（均需用户明确要求，或作为检索流程的必要中间步骤）：
 - `scripts/build_index.py` → 生成 / 更新 `data_structure.md` 分层索引（写入知识库根目录及各子目录）
-- `scripts/extract_pdf_text.py` → 提取 PDF 文本为独立 `.txt` 文件（写入临时目录，源 PDF 不动）
-- `scripts/convert_pdf_to_images.py` → 扫描件转图片（OCR 可选路径，产物进临时目录）
+- `scripts/extract_pdf_text.py` → 提取 PDF 文本为派生 `.txt` 文件（**写入源 PDF 所在目录内**，源 PDF 不动）
+- `scripts/convert_pdf_to_images.py` → 扫描件转图片（OCR 可选路径，**产物写入源 PDF 所在目录树内的子目录**）
 
 **边界承诺**：
 - 不修改任何源文件（md / pdf / xlsx 原样保留）
 - 不联网、不调用外部 API、不发送任何数据
-- 写操作产物（txt / 图片 / 索引）均位于用户指定或临时目录，可随时清理
+- 写操作产物（txt / 图片 / 索引）**一律位于知识库根目录内**（与源文件同目录），可随时清理；知识库之外不改动任何文件
 - 安装 Python 依赖前必须先告知用户并获得确认（见下文「依赖自安装」）
 
 ## 知识库目录说明
