@@ -1,0 +1,35 @@
+{
+  "title": "kb-retriever v1.0.7 verification — read-side symlink containment (read+write gate) + reference cleanup",
+  "date": "2026-09-27",
+  "version": "1.0.7 (pending publish)",
+  "clawscanTrigger": "v1.0.6 verdict=suspicious/high — aig T09 warning at scripts/search_kb.py:52: \"Symlinked files can escape the authorized knowledge-base root\" (read side was unguarded: v1.0.5 only closed the write side); plus skillspector AE1 (HIGH, coverage): SKILL.md referenced assets/readme/community-qr.png which the scanner could not fully inspect",
+  "fix": [
+    "scripts/pathguard.py: gate generalized from write-only to read + write (new read_within(); docstring now covers both directions, fail closed)",
+    "scripts/search_kb.py (the flagged helper): root resolved via realpath; every candidate entry resolved to its real path and checked against the root — escaped entries are skipped and counted, never opened; symlinked folders pruned from traversal; reads use the validated real path",
+    "scripts/build_index.py: read side gated too — README reads and per-entry size/list reads go through the same real-path check; escaped entries skipped and counted; counters disclosed in the summary line",
+    "scripts/extract_pdf_text.py / convert_pdf_to_images.py: source PDF resolved to its real path and printed ([read] line); reads use that real file; output containment still derived from the real source directory",
+    "SKILL.md: removed the explicit asset path/filename reference that triggered the coverage finding (now generic wording); added read-boundary statements to the capability/boundary section, the hard-constraint block and the frontmatter description",
+    "manifest.json: version 1.0.7, description + permissions.notes now state the read boundary",
+    "README.md / README.en.md: added a bounded-both-ways note next to the existing write warning",
+    "references/pdf_reading.md: removed the stale unguarded copy of extract_pdf_text.py (code drift — agents could copy an unguarded variant); the doc now points at the shipped script and states its boundary; added a write-boundary note to the OCR/render snippets"
+  ],
+  "harness": "tmp/kb_v107_verify.py — 29 checks, real symlinks created on disk",
+  "results": {
+    "passed": 29,
+    "total": 29,
+    "groups": {
+      "read_side": ["search over escaped symlinked file: 0 hits, escaped entries skipped and counted, outside content never printed", "listing excludes escaped file and escaped folder entries, keeps in-root files", "in-root symlink (target inside KB) still listed/followed"],
+      "write_side": ["file symlinked to an outside index: outside file byte-identical after --force run", "no data_structure.md generated outside the KB", "in-KB indexes still generated", "write-escape refused and counted"],
+      "pathguard_unit": ["read_within allows in-root, raises PathEscapeError out-of-root"],
+      "regression": ["plain KB search hit", "plain KB index generation", "idempotent skip on re-run"],
+      "metadata": ["5 scripts compile", "SKILL.md frontmatter YAML valid", "manifest version 1.0.7", "read boundary declared in description"]
+    }
+  },
+  "attack_scenarios_tested": [
+    "KB contains link_secret.md -> <outside>/secret.md ; searching the sentinel string returns 0 hits and never prints outside content (escaped=2 counted)",
+    "KB contains link_outdir -> <outside> (directory symlink); traversal never enters it, no outside entry appears in --list",
+    "KB contains sub/data_structure.md as a symlink to an outside file; build_index --force leaves the outside file byte-identical and refuses the out-of-root write",
+    "in-root symlink (KB/in_link.md -> KB/a.md) keeps working, so legitimate links are not broken"
+  ],
+  "verification_note": "待发布后跑 clawhub skill verify 复核（目标：security.status=clean / verdict=benign），并核对 summary/displayName 等元数据漂移"
+}

@@ -37,35 +37,16 @@
 
 > ⚠️ **重要**：必须将提取结果保存到文件，不要直接打印到 stdout，否则会占用大量 token！
 
-将以下脚本保存为 `scripts/extract_pdf_text.py`（本项目已提供），双平台通用：
+本项目已随包提供 `scripts/extract_pdf_text.py`（双平台通用，**请直接使用它，不要另抄一份**，以免绕开边界校验）：
 
-```python
-# scripts/extract_pdf_text.py — 双平台通用 PDF 文本提取
-# 用法: python extract_pdf_text.py input.pdf output.txt [start_page] [end_page]
-import sys
-import pdfplumber
-
-def main():
-    if len(sys.argv) < 3:
-        print("用法: python extract_pdf_text.py <input.pdf> <output.txt> [start_page] [end_page]", file=sys.stderr)
-        sys.exit(1)
-    input_pdf, output_txt = sys.argv[1], sys.argv[2]
-    start = int(sys.argv[3]) if len(sys.argv) > 3 else 1
-    end = int(sys.argv[4]) if len(sys.argv) > 4 else None
-
-    with pdfplumber.open(input_pdf) as pdf:
-        total = len(pdf.pages)
-        end = end or total
-        with open(output_txt, "w", encoding="utf-8") as f:
-            for i in range(max(1, start) - 1, min(end, total)):
-                text = pdf.pages[i].extract_text() or ""
-                f.write(f"--- Page {i + 1} ---\n")
-                f.write(text + "\n")
-    print(f"OK: {input_pdf} -> {output_txt} ({end - start + 1} pages)")
-
-if __name__ == "__main__":
-    main()
+```bash
+python scripts/extract_pdf_text.py <input.pdf> <output.txt> [start_page] [end_page]
 ```
+
+该脚本的安全行为（与其源码一致）：
+- 先解析源 PDF 的**真实路径**（解符号链接）并打印，读取的就是这个真实文件
+- 输出 `.txt` 必须与源 PDF 同处一个（真实）目录内，越界即拒绝（`scripts/pathguard.py`，fail closed）
+- 只写这一个派生文件，源 PDF 不动；运行前打印写入路径
 
 **使用流程**：
 1. `python scripts/extract_pdf_text.py input.pdf output.txt`（生成派生文本文件，与源 PDF 同目录；不占 token）
@@ -156,6 +137,10 @@ with pdfplumber.open("complex_table.pdf") as pdf:
 ```
 
 ### pypdfium2 - 快速渲染（扫描件转图片）
+
+> 🛡️ **写盘边界**：下面几段渲染 / OCR 片段为**示意写法**。实际落盘请用随包脚本
+> `scripts/convert_pdf_to_images.py`：输出目录必须位于**源 PDF 所在目录树内**，并按真实
+> 路径校验（解符号链接后越界即拒绝）；不要把片段改成写到知识库之外的位置。
 
 ```python
 import pypdfium2 as pdfium

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""pathguard.py — 写盘路径的容器校验（防符号链接越界写入）
+"""pathguard.py — 知识库边界的容器校验（读写双向，防符号链接越界）
 
 语言 / Language：注释与报错默认中文；**语言可选**，按用户语言回应即可
 （comments default to Chinese; error text can be adapted to the user's language）。
@@ -8,16 +8,20 @@
 为什么需要它：知识库目录里可能存在**符号链接**（用户自己建的、同步盘建的、
 或从压缩包解出来的）。只做字符串层面的校验（`abspath` + `commonpath` /
 `startswith`）**看不出链接**：`<kb>/sub -> /etc` 这样的链接会让一个"看起来在
-库内"的路径实际写到库外。本模块是三个写盘脚本共用的唯一闸门。
+库内"的路径实际指到库外——**写入会写出去、读取会读出去**。本模块是全部脚本
+（检索 + 三个维护脚本）共用的唯一闸门，读与写同一套规则。
 
 规则
   1. 先把知识库根解析成**真实路径**（`realpath`，解开沿途所有符号链接）。
-  2. 每个写入目标同样解析成真实路径（已存在的部分解链，尚未存在的尾段原样保留）
-     —— 这个真实路径必须仍落在库根内部，否则拒绝。
-  3. 目标已存在且是符号链接时同上：解出来的真实路径越界即拒绝（不会"跟着链接"写出去）。
-  4. **fail closed**：任何校验不通过都直接报错退出，绝不"先写再说"。
+  2. **写入目标**解析成真实路径（已存在的部分解链，尚未存在的尾段原样保留）
+     —— 必须仍落在库根内部，否则拒绝写入。
+  3. **读取目标**同样解析成真实路径 —— 越出库根即拒绝读取（调用方按"跳过并
+     计数"处理，不会去 read 库外的文件）。
+  4. 目标已是符号链接时同上：解出来的真实路径越界即拒绝（既不跟着链接写，
+     也不跟着链接读）。
+  5. **fail closed**：任何校验不通过都拒绝，绝不"先做再说"。
 
-不做：不删除任何文件；不跟随链接到库外（既不写、也不在库外建目录）。
+不做：不删除任何文件；不跟随链接到库外（既不写、也不在库外建目录、也不读）。
 """
 
 from __future__ import annotations
@@ -27,7 +31,7 @@ import sys
 
 
 class PathEscapeError(RuntimeError):
-    """写入目标解析后越出知识库根（通常是符号链接导致的）。"""
+    """目标路径解析后越出知识库根（通常是符号链接导致的）。读、写均适用。"""
 
 
 def _norm(path: str) -> str:
@@ -72,6 +76,19 @@ def check_or_exit(root: str, target: str, *, what: str = "写入目标") -> str:
     except PathEscapeError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(2)
+
+
+def read_within(root_real: str, target: str, *, what: str = "读取目标") -> str:
+    """校验读取目标（含符号链接解析）必须落在 root_real 内，返回可安全读取的真实路径。
+
+    越界即抛 PathEscapeError —— 调用方应**跳过该条目并计数**，而不是去读它。
+    """
+    resolved = real_target(target)
+    if not is_within(root_real, resolved):
+        raise PathEscapeError(
+            f"{what}解析后越出知识库根（符号链接或异常路径），已拒绝读取：{target} -> {resolved}"
+        )
+    return resolved
 
 
 def is_symlink(path: str) -> bool:

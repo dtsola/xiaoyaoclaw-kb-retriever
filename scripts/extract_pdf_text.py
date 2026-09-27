@@ -12,7 +12,9 @@
     - Windows / macOS 行为一致（纯 Python，无 poppler 依赖）
     - 输出写入文件而非 stdout，避免占用 LLM token
 
-安全边界 / Safety:
+安全边界 / Safety（读 + 写）:
+    - **读盘披露**：源 PDF 会先解析成**真实路径**（解符号链接）并打印，实际读取的是
+      这个真实文件 —— 不会"跟着链接"去读别处。
     - **写盘披露**：本脚本会新建/覆盖 <output.txt>（仅此一个文件，源 PDF 不动）；
       运行前会打印将写入的绝对路径。
     - **写入范围**：<output.txt> 必须与 <input.pdf> 位于同一知识库根目录内，
@@ -29,6 +31,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pathguard  # noqa: E402
 
 import pdfplumber  # 可选依赖，版本见 requirements-optional.txt
+
+
+def resolve_source(pdf_path: str) -> str:
+    """把源 PDF 解析成真实路径（解符号链接）并确认是文件；读取一律用这个路径。"""
+    src = pathguard.real_target(pdf_path)
+    if not os.path.isfile(src):
+        print(f"ERROR: 源 PDF 不存在或不是文件：{src}", file=sys.stderr)
+        sys.exit(2)
+    return src
 
 
 def resolve_within(pdf_path: str, out_path: str) -> str:
@@ -55,10 +66,12 @@ def main():
     start = int(sys.argv[3]) if len(sys.argv) > 3 else 1
     end = int(sys.argv[4]) if len(sys.argv) > 4 else None
 
-    output_txt = resolve_within(input_pdf, output_txt)
+    source_pdf = resolve_source(input_pdf)
+    output_txt = resolve_within(source_pdf, output_txt)
+    print(f"[read]  源 PDF 真实路径：{source_pdf}")
     print(f"[write] 将写入派生文本文件：{output_txt}（源 PDF 不改动）")
 
-    with pdfplumber.open(input_pdf) as pdf:
+    with pdfplumber.open(source_pdf) as pdf:
         total = len(pdf.pages)
         end = end or total
         with open(output_txt, "w", encoding="utf-8") as f:
@@ -66,7 +79,7 @@ def main():
                 text = pdf.pages[i].extract_text() or ""
                 f.write(f"--- Page {i + 1} ---\n")
                 f.write(text + "\n")
-    print(f"OK: {input_pdf} -> {output_txt} ({end - start + 1} pages)")
+    print(f"OK: {source_pdf} -> {output_txt} ({end - start + 1} pages)")
 
 
 if __name__ == "__main__":

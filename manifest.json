@@ -1,8 +1,8 @@
 {
   "name": "xiaoyaoclaw-kb-retriever",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "category": "Retrieval / Local Knowledge Base",
-  "description": "OpenClaw local knowledge-base retriever with progressive search. Navigates layered data_structure.md indexes, enforces learn-before-process for PDF and Excel, bounds retrieval to at most five rounds, and answers with sources. Retrieval is read-only; three optional maintenance scripts write only inside the knowledge base (data_structure.md indexes, derived .txt from PDFs, page PNGs for the OCR path) and run only on explicit request with confirmation. Every write target is resolved to its real path and must stay inside the knowledge-base root, so symlinks cannot redirect a write outside; symlinked folders are never traversed. Windows & macOS ready. 中文：本地知识库检索器——分层索引 + 渐进式检索，核心零依赖；检索只读，三个可选维护脚本（建索引 / PDF 转文本 / PDF 转图片）只写知识库内的文件，需用户点名并确认。",
+  "description": "OpenClaw local knowledge-base retriever with progressive search. Navigates layered data_structure.md indexes, enforces learn-before-process for PDF and Excel, bounds retrieval to at most five rounds, and answers with sources. Retrieval is read-only and bounded: every scanned entry is resolved to its real path and must stay inside the knowledge-base root, and entries that escape it (symlinked files or folders) are skipped and counted rather than read. Three optional maintenance scripts write only inside the knowledge base (data_structure.md indexes, derived .txt from PDFs, page PNGs for the OCR path) and run only on explicit request with confirmation; every write target is real-path checked the same way, and symlinked folders are never traversed. Windows & macOS ready. 中文：本地知识库检索器——分层索引 + 渐进式检索，核心零依赖；检索只读且受知识库边界约束（跟随符号链接后会越出根目录的条目一律跳过，不读库外文件），三个可选维护脚本（建索引 / PDF 转文本 / PDF 转图片）只写知识库内的文件，需用户点名并确认。",
   "homepage": "https://github.com/dtsola/xiaoyaoclaw-kb-retriever",
   "compat": [
     "openclaw",
@@ -15,7 +15,7 @@
   ],
   "permissions": {
     "read": [
-      "knowledge base directory (md/txt/pdf/xlsx and other documents)"
+      "knowledge base directory (md/txt/pdf/xlsx and other documents) — reads are real-path checked and confined to the knowledge-base root"
     ],
     "write": [
       "data_structure.md index files inside the knowledge base (optional, on request)",
@@ -24,6 +24,6 @@
     ],
     "network": "none",
     "environment": "none",
-    "notes": "No cron/daemons/state files. Write targets are validated by real path (symlinks resolved) and must stay inside the knowledge-base root; symlinked folders are never traversed; no file is deleted."
+    "notes": "No cron/daemons/state files. Reads and writes both go through one real-path containment gate (scripts/pathguard.py): targets are resolved to their real path, symlinks cannot redirect a read or a write outside the knowledge-base root, escaped entries are skipped and counted, and symlinked folders are never traversed. No file is deleted. Env vars and credentials are never read."
   }
 }

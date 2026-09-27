@@ -4,7 +4,9 @@
 ⚠️ 这是**可选维护脚本**：会在 <output_dir> 下新建 `page_N.png`（不改源 PDF）。
 必须在用户明确要求处理扫描件并确认后运行。
 
-安全边界 / Safety:
+安全边界 / Safety（读 + 写）:
+    - **读盘披露**：源 PDF 先解析成**真实路径**（解符号链接）并打印，实际读取的是这个
+      真实文件 —— 不会"跟着链接"去读别处。
     - **写盘披露**：运行前打印将写入的目录；只新建 PNG，不删不改其它文件。
     - **写入范围**：<output_dir> 必须位于**源 PDF 所在目录树内**；按真实路径校验
       （`scripts/pathguard.py`，解符号链接后仍须在根内，越界即拒绝）
@@ -19,6 +21,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pathguard  # noqa: E402
 
 from pdf2image import convert_from_path  # 可选依赖，版本见 requirements-optional.txt
+
+
+def resolve_source(pdf_path: str) -> str:
+    """把源 PDF 解析成真实路径（解符号链接）并确认是文件；读取一律用这个路径。"""
+    src = pathguard.real_target(pdf_path)
+    if not os.path.isfile(src):
+        print(f"ERROR: 源 PDF 不存在或不是文件：{src}", file=sys.stderr)
+        sys.exit(2)
+    return src
 
 
 def resolve_output_within(pdf_path: str, output_dir: str) -> str:
@@ -63,5 +74,7 @@ if __name__ == "__main__":
         print("Usage: convert_pdf_to_images.py [input pdf] [output directory]")
         sys.exit(1)
     pdf_path = sys.argv[1]
-    output_directory = resolve_output_within(pdf_path, sys.argv[2])
-    convert(pdf_path, output_directory)
+    source_pdf = resolve_source(pdf_path)
+    output_directory = resolve_output_within(source_pdf, sys.argv[2])
+    print(f"[read]  源 PDF 真实路径：{source_pdf}")
+    convert(source_pdf, output_directory)

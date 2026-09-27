@@ -53,6 +53,8 @@ git clone https://github.com/dtsola/xiaoyaoclaw-kb-retriever
 
 > ⚠️ **这一步会写盘**：`build_index.py` 会在知识库里**新建/覆盖 `data_structure.md`**（`--force` 会覆盖已有索引）。它是维护动作、不是检索——只在你确实要索引时才跑；所有写入目标都按真实路径校验，符号链接无法把写入导出知识库之外。
 
+> 🛡️ **双向边界**：读取同样受约束——检索/列举对每个条目做真实路径校验，跟随符号链接后会越出知识库根目录的条目**跳过并计数**，绝不读取库外文件。
+
 ```bash
 python scripts/build_index.py knowledge
 ```

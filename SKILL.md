@@ -12,6 +12,9 @@ description: >
   and those run only when the user asks for indexing/PDF text extraction and
   confirms the write. Every write target is resolved to its real path and must
   stay inside the knowledge-base root (symlinks cannot redirect a write outside).
+  Reads use the same gate: each entry's real path must stay inside the root, and
+  entries that escape it (symlinked files/folders) are skipped, never read —
+  so the search cannot be steered outside the knowledge base either.
   Use when user asks to retrieve/answer from a knowledge
   base directory (knowledge base/retrieve/ RAG over local files)，
   或明确要求生成/更新索引、把 PDF 转文本。中文：面向本地知识库目录的检索和问答助手。
@@ -58,8 +61,8 @@ Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按
 **语言策略（Language）**：本技能**语言可选，不对任何语言或地区设限**——默认用中文回复，用户用英文或其它语言提问则跟随该语言；
 技能本体不含任何地区限定行为（无地区专属路径、无地区专属服务、无语言门槛）。
 仓库内随包分发的资源——示例文本、索引模板（`templates/data_structure.md`）与 README 品牌插图
-（`assets/readme/hero.svg`、`assets/readme/community-qr.png`）——其中出现的中文属**示例与品牌双语素材**，
-不构成对使用者语言或地区的限制（该 SVG 已在 `<desc>` 中声明为双语品牌素材）；索引文件的段落标题
+（横幅与交流群二维码两张图）——其中出现的中文属**示例与品牌双语素材**，不构成对使用者语言或地区的限制
+（横幅 SVG 已在 `<desc>` 中声明为双语品牌素材）；索引文件的段落标题
 （Purpose / Files / Coverage）本身固定为英文。所有面向用户的运行时文案均可按用户语言调整。
 
 ## 能力范围与写操作声明（权限透明）
@@ -73,6 +76,9 @@ Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按
 
 **边界承诺**：
 - 不修改任何源文件（md / pdf / xlsx 原样保留）
+- **读取同样受同一道边界约束**：`scripts/search_kb.py`（检索 / 列举）对每个候选条目做
+  **真实路径校验**（解开符号链接后仍须落在知识库根内），越界的条目**跳过并计数**，
+  绝不读取知识库之外的文件；符号链接目录一律不进入遍历
 - 不联网、不调用外部 API、不发送任何数据
 - 写操作产物（txt / 图片 / 索引）**一律位于知识库根目录内**（与源文件同目录），可随时清理；知识库之外不改动任何文件
 - 安装 Python 依赖前必须先告知用户并获得确认（见下文「依赖自安装」）
@@ -189,7 +195,8 @@ python scripts/search_kb.py <知识库根目录> --list --max-files 100    # 只
 > ⚠️ **索引生成会写盘**：`scripts/build_index.py` 会在知识库各目录**新建/覆盖 `data_structure.md`**（`--force` 时覆盖已有索引）。它不是检索动作，必须由用户点名「建/补索引」后才运行。
 
 **写入硬约束**：只写**知识库根目录内**的文件；不删任何文件；不改知识库之外的文件；写前打印目标路径。
-**符号链接防线**：所有写入目标都按**真实路径**（`realpath`）校验，解析符号链接后仍须落在知识库根内，否则拒绝；遍历时**不进入符号链接目录**（`scripts/pathguard.py` 统一把关，fail closed）。
+**读取硬约束**：检索 / 列举（`scripts/search_kb.py`）对每个条目按**真实路径**（`realpath`）校验，越界条目跳过并计数，不读知识库之外的文件。
+**符号链接防线（读 + 写同一道闸）**：写入目标与读取目标都按**真实路径**校验，解析符号链接后仍须落在知识库根内，否则拒绝/跳过；遍历时**不进入符号链接目录**（`scripts/pathguard.py` 统一把关，fail closed）。
 **权限对应**：`Read`/`Glob`/`Grep`/`Bash` 用于检索与只读命令；`Write`/`Edit` 仅用于上面三项写操作。本技能不读环境变量、不读凭据、不联网。
 
 ## 总体流程

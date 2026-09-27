@@ -16,10 +16,13 @@
     - 输出符合 kb-retriever 索引规范（Purpose / Files / Coverage 三段式）
     - Windows / macOS 双平台通用（纯 Python，无外部依赖）
 
-安全边界 / Safety（写盘）:
+安全边界 / Safety（读 + 写）:
     - 只新建/覆盖知识库内的 `data_structure.md`，不改不删其它文件
+    - **读取侧容器校验**：读取 README、读取文件体积等操作，同样先把目标解析成
+      真实路径（解符号链接）并校验仍在知识库根内；越界的条目**跳过并计数**，
+      不读取库外文件
     - **写入目标按真实路径校验**（scripts/pathguard.py）：解析符号链接后仍必须
-      落在知识库根内，否则拒绝；**符号链接目录一律不进入遍历**（既不写也不越界）
+      落在知识库根内，否则拒绝；**符号链接目录一律不进入遍历**（既不读也不写）
     - 运行前打印将写入的根目录；本操作需用户点名并确认
 
 示例:
@@ -40,16 +43,20 @@ DOC_EXTS = {".pdf", ".xlsx", ".xls", ".docx", ".csv", ".json", ".yaml", ".yml"}
 SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv", "venv", ".obsidian", ".idea", ".vscode"}
 
 
-def infer_purpose(directory):
-    """从 README 首段 / 目录名推断用途描述。"""
+def infer_purpose(directory, root):
+    """从 README 首段 / 目录名推断用途描述（README 读取同样过边界校验）。"""
     readme = os.path.join(directory, README_NAME)
     if os.path.isfile(readme):
         try:
-            with open(readme, "r", encoding="utf-8-sig") as f:
+            # 读取闸：解符号链接后必须仍在知识库真实根内
+            real_readme = pathguard.read_within(root, readme, what="读取目标（README）")
+            with open(real_readme, "r", encoding="utf-8-sig") as f:
                 for line in f:
                     line = line.strip()
                     if line and not line.startswith("#"):
                         return line[:120]
+        except pathguard.PathEscapeError:
+            pass
         except Exception:
             pass
     # 回退：目录名
@@ -57,8 +64,8 @@ def infer_purpose(directory):
     return f"{name} 相关文档与数据"
 
 
-def scan_directory(directory):
-    """扫描目录，返回 (子目录列表, 业务文件列表)。"""
+def scan_directory(directory, root, stats):
+    """扫描目录，返回 (子目录列表, 业务文件列表)。越界（符号链接）条目跳过并计数。"""
     subdirs, files = [], []
     try:
         entries = sorted(os.listdir(directory))
@@ -69,6 +76,12 @@ def scan_directory(directory):
         if entry.startswith("."):
             continue
         full = os.path.join(directory, entry)
+        try:
+            # 读取闸：条目真实路径必须仍在知识库根内，否则跳过（不读库外文件）
+            pathguard.read_within(root, full, what=f"读取目标 {entry}")
+        except pathguard.PathEscapeError:
+            stats["read_escaped"] += 1
+            continue
         if os.path.isdir(full):
             if entry not in SKIP_DIRS:
                 subdirs.append(entry)
@@ -94,12 +107,12 @@ def format_size(path):
         return "?"
 
 
-def generate_index(directory, subdirs, files):
+def generate_index(directory, subdirs, files, root):
     """生成 data_structure.md 内容。"""
     name = os.path.basename(directory) or directory
     lines = [f"# {name}", ""]
     lines.append("## Purpose")
-    lines.append(infer_purpose(directory))
+    lines.append(infer_purpose(directory, root))
     lines.append("")
     lines.append("## Files")
     if not subdirs and not files:
@@ -134,7 +147,8 @@ def main():
     print(f"[write] 将在下列目录内写入/更新 {INDEX_NAME}（只动这一个文件）：{root}")
 
     generated, skipped, empty, escaped = 0, 0, 0, 0
-    for dirpath, dirnames, filenames in os.walk(root):
+    stats = {"read_escaped": 0}
+    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
         # 跳过隐藏目录与 SKIP_DIRS；**符号链接目录一律不进入**（防越界/防环）
         dirnames[:] = [
             d for d in dirnames
@@ -144,7 +158,7 @@ def main():
         if dirpath != root and os.path.basename(dirpath).startswith("."):
             continue
 
-        subdirs, files = scan_directory(dirpath)
+        subdirs, files = scan_directory(dirpath, root, stats)
         if not subdirs and not files:
             empty += 1
             continue
@@ -162,7 +176,7 @@ def main():
             print(f"跳过（已有索引）: {os.path.relpath(index_path, root)}")
             continue
 
-        content = generate_index(dirpath, subdirs, files)
+        content = generate_index(dirpath, subdirs, files, root)
         with open(index_path, "w", encoding="utf-8") as f:
             f.write(content)
         generated += 1
@@ -170,7 +184,8 @@ def main():
         print(f"生成: {rel}（{len(subdirs)} 子目录, {len(files)} 文件）")
 
     print(f"\n完成: 生成 {generated}，跳过 {skipped}，空目录 {empty}"
-          + (f"，越界拒绝 {escaped}" if escaped else ""))
+          + (f"，越界拒绝写入 {escaped}" if escaped else "")
+          + (f"，越界跳过读取 {stats['read_escaped']}（未读库外文件）" if stats["read_escaped"] else ""))
     if generated == 0 and skipped == 0:
         print("提示: 知识库为空，或所有目录均无业务文件。")
 
