@@ -13,13 +13,13 @@
     - 输出写入文件而非 stdout，避免占用 LLM token
 
 安全边界 / Safety（读 + 写）:
-    - **读盘披露**：源 PDF 会先解析成**真实路径**（解符号链接）并打印，实际读取的是
-      这个真实文件 —— 不会"跟着链接"去读别处。
+    - **读盘边界**：源 PDF 必须是**真实路径**上的普通文件 —— 路径中任一段是**符号链接
+      一律拒绝**（`scripts/pathguard.py` 的 `require_real_file`，fail closed），
+      因此本脚本绝不会"跟着链接"读到知识库之外；被拒时报错会回显真实位置，改用真实路径即可。
     - **写盘披露**：本脚本会新建/覆盖 <output.txt>（仅此一个文件，源 PDF 不动）；
       运行前会打印将写入的绝对路径。
     - **写入范围**：<output.txt> 必须与 <input.pdf> 位于同一知识库根目录内，
-      不得写到系统目录或越出该根目录；**按真实路径校验**（`scripts/pathguard.py`，
-      解符号链接后仍须在根内，越界即拒绝）
+      不得写到系统目录或越出该根目录；**按真实路径校验**（解符号链接后仍须在根内，越界即拒绝）
     - **本操作需用户点名并确认**：把 PDF 转成文本文件属派生写入，不是纯检索。
 
 语言 / Language：输出默认中文，**语言可选**（可按用户语言调整文案）。
@@ -34,12 +34,12 @@ import pdfplumber  # 可选依赖，版本见 requirements-optional.txt
 
 
 def resolve_source(pdf_path: str) -> str:
-    """把源 PDF 解析成真实路径（解符号链接）并确认是文件；读取一律用这个路径。"""
-    src = pathguard.real_target(pdf_path)
-    if not os.path.isfile(src):
-        print(f"ERROR: 源 PDF 不存在或不是文件：{src}", file=sys.stderr)
+    """源 PDF 必须是**真实路径**上的普通文件；路径中任一段是符号链接即拒绝（fail closed）。"""
+    try:
+        return pathguard.require_real_file(pdf_path, what="源 PDF")
+    except pathguard.PathEscapeError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(2)
-    return src
 
 
 def resolve_within(pdf_path: str, out_path: str) -> str:
@@ -68,7 +68,7 @@ def main():
 
     source_pdf = resolve_source(input_pdf)
     output_txt = resolve_within(source_pdf, output_txt)
-    print(f"[read]  源 PDF 真实路径：{source_pdf}")
+    print(f"[read]  源 PDF（真实路径，无符号链接）：{source_pdf}")
     print(f"[write] 将写入派生文本文件：{output_txt}（源 PDF 不改动）")
 
     with pdfplumber.open(source_pdf) as pdf:

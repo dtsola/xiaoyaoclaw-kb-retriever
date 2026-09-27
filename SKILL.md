@@ -14,7 +14,10 @@ description: >
   stay inside the knowledge-base root (symlinks cannot redirect a write outside).
   Reads use the same gate: each entry's real path must stay inside the root, and
   entries that escape it (symlinked files/folders) are skipped, never read —
-  so the search cannot be steered outside the knowledge base either.
+  so the search cannot be steered outside the knowledge base either. The PDF
+  helpers additionally accept only real (non-symlinked) source paths: a source
+  path containing any symlink is refused outright, so they never read outside
+  the knowledge base by following a link.
   Use when user asks to retrieve/answer from a knowledge
   base directory (knowledge base/retrieve/ RAG over local files)，
   或明确要求生成/更新索引、把 PDF 转文本。中文：面向本地知识库目录的检索和问答助手。
@@ -71,14 +74,17 @@ Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按
 
 **可选写操作**（均需用户明确要求，或作为检索流程的必要中间步骤）：
 - `scripts/build_index.py` → 生成 / 更新 `data_structure.md` 分层索引（写入知识库根目录及各子目录）
-- `scripts/extract_pdf_text.py` → 提取 PDF 文本为派生 `.txt` 文件（**写入源 PDF 所在目录内**，源 PDF 不动）
-- `scripts/convert_pdf_to_images.py` → 扫描件转图片（OCR 可选路径，**产物写入源 PDF 所在目录树内的子目录**）
+- `scripts/extract_pdf_text.py` → 提取 PDF 文本为派生 `.txt` 文件（**写入源 PDF 所在目录内**，源 PDF 不动；**源 PDF 须为真实路径**，含符号链接即拒绝）
+- `scripts/convert_pdf_to_images.py` → 扫描件转图片（OCR 可选路径，**产物写入源 PDF 所在目录树内的子目录**；**源 PDF 须为真实路径**，含符号链接即拒绝）
 
 **边界承诺**：
 - 不修改任何源文件（md / pdf / xlsx 原样保留）
 - **读取同样受同一道边界约束**：`scripts/search_kb.py`（检索 / 列举）对每个候选条目做
   **真实路径校验**（解开符号链接后仍须落在知识库根内），越界的条目**跳过并计数**，
   绝不读取知识库之外的文件；符号链接目录一律不进入遍历
+- **被处理的源文件必须是真实路径**：`scripts/extract_pdf_text.py` /
+  `scripts/convert_pdf_to_images.py` 只接受**不含任何符号链接**的源 PDF 路径
+  （含链接即拒绝并回显真实位置）—— 不做"解开链接再读"，因此不会跟着链接读到知识库之外
 - 不联网、不调用外部 API、不发送任何数据
 - 写操作产物（txt / 图片 / 索引）**一律位于知识库根目录内**（与源文件同目录），可随时清理；知识库之外不改动任何文件
 - 安装 Python 依赖前必须先告知用户并获得确认（见下文「依赖自安装」）
@@ -189,14 +195,14 @@ python scripts/search_kb.py <知识库根目录> --list --max-files 100    # 只
 | 操作 | 写什么 | 触发条件 |
 |---|---|---|
 | 生成/更新索引 | 各目录下的 `data_structure.md` | 用户明确要求「建/补索引」；跑之前先说清「将写入哪些目录」 |
-| PDF 转文本 | 派生的 `.txt` 文件（源 PDF 不动） | 用户明确要求把 PDF 内容落成文本；先说清写入位置 |
-| PDF 转图片（OCR 可选路径） | 每页 `page_N.png`（源 PDF 不动） | 用户明确要求处理扫描件；先说清写入目录；需先确认安装 `pdf2image` + poppler |
+| PDF 转文本 | 派生的 `.txt` 文件（源 PDF 不动） | 用户明确要求把 PDF 内容落成文本；先说清写入位置；**源 PDF 须为真实路径**（含符号链接即拒绝） |
+| PDF 转图片（OCR 可选路径） | 每页 `page_N.png`（源 PDF 不动） | 用户明确要求处理扫描件；先说清写入目录；需先确认安装 `pdf2image` + poppler；**源 PDF 须为真实路径** |
 
 > ⚠️ **索引生成会写盘**：`scripts/build_index.py` 会在知识库各目录**新建/覆盖 `data_structure.md`**（`--force` 时覆盖已有索引）。它不是检索动作，必须由用户点名「建/补索引」后才运行。
 
 **写入硬约束**：只写**知识库根目录内**的文件；不删任何文件；不改知识库之外的文件；写前打印目标路径。
-**读取硬约束**：检索 / 列举（`scripts/search_kb.py`）对每个条目按**真实路径**（`realpath`）校验，越界条目跳过并计数，不读知识库之外的文件。
-**符号链接防线（读 + 写同一道闸）**：写入目标与读取目标都按**真实路径**校验，解析符号链接后仍须落在知识库根内，否则拒绝/跳过；遍历时**不进入符号链接目录**（`scripts/pathguard.py` 统一把关，fail closed）。
+**读取硬约束**：检索 / 列举（`scripts/search_kb.py`）对每个条目按**真实路径**（`realpath`）校验，越界条目跳过并计数，不读知识库之外的文件；待处理的源 PDF 必须是**真实路径**（路径任一段含符号链接即拒绝，不做"解链再读"）。
+**符号链接防线（读 + 写同一道闸）**：写入目标与读取目标都按**真实路径**校验，解析符号链接后仍须落在知识库根内，否则拒绝/跳过；遍历时**不进入符号链接目录**；源 PDF 走 `require_real_file()`（含链接直接拒绝）（`scripts/pathguard.py` 统一把关，fail closed）。
 **权限对应**：`Read`/`Glob`/`Grep`/`Bash` 用于检索与只读命令；`Write`/`Edit` 仅用于上面三项写操作。本技能不读环境变量、不读凭据、不联网。
 
 ## 总体流程

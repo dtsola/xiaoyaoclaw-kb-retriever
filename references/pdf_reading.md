@@ -44,7 +44,7 @@ python scripts/extract_pdf_text.py <input.pdf> <output.txt> [start_page] [end_pa
 ```
 
 该脚本的安全行为（与其源码一致）：
-- 先解析源 PDF 的**真实路径**（解符号链接）并打印，读取的就是这个真实文件
+- 源 PDF 必须是**真实路径**上的普通文件：路径中**任一段含符号链接即拒绝**（`scripts/pathguard.py` 的 `require_real_file`，fail closed）——不做"解开链接再读"，因此不会跟着链接读到知识库之外；被拒时报错会回显真实位置，改用真实路径即可
 - 输出 `.txt` 必须与源 PDF 同处一个（真实）目录内，越界即拒绝（`scripts/pathguard.py`，fail closed）
 - 只写这一个派生文件，源 PDF 不动；运行前打印写入路径
 

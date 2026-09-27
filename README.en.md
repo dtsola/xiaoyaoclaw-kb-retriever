@@ -53,7 +53,7 @@ git clone https://github.com/dtsola/xiaoyaoclaw-kb-retriever
 
 > ⚠️ **This step writes to disk**: `build_index.py` creates or overwrites `data_structure.md` inside your knowledge base (with `--force` it overwrites existing indexes). It is a maintenance action, not retrieval — run it only when you actually want an index, and every write target is real-path checked so a symlink cannot push a write outside the knowledge base.
 
-> 🛡️ **Bounded both ways**: reads are confined the same way — search/listing resolves each entry's real path and **skips and counts** anything that escapes the knowledge-base root, so no file outside it is ever read.
+> 🛡️ **Bounded both ways**: reads are confined the same way — search/listing resolves each entry's real path and **skips and counts** anything that escapes the knowledge-base root, so no file outside it is ever read. Source documents handed to the PDF helpers must be **real paths**: any symlink in the path is refused outright rather than followed.
 
 ```bash
 python scripts/build_index.py knowledge

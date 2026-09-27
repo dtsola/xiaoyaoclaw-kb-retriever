@@ -1,0 +1,27 @@
+{
+  "title": "kb-retriever v1.0.8 verification — PDF helpers now refuse symlinked source paths (read side fail-closed)",
+  "date": "2026-09-27",
+  "version": "1.0.8 (pending publish)",
+  "clawscanTrigger": "v1.0.7 verdict=suspicious/high — reviewer summary: \"its PDF helper scripts can follow symlinked PDFs outside the intended knowledge-base boundary despite claiming they cannot\". Root cause of the contradiction: v1.0.7 resolved a symlinked source PDF to its real path and read that target, while the docs claimed a knowledge-base boundary; resolving-then-reading = following the link out of the boundary.",
+  "fix": [
+    "scripts/pathguard.py: new require_real_file() — the source file must live on a real path: if any component of the path is a symlink (symlinked file OR symlinked directory in the path) it is refused outright (PathEscapeError, exit 2) and the real location is echoed so the caller can use the real path. No 'resolve-then-read' behaviour remains.",
+    "scripts/extract_pdf_text.py / scripts/convert_pdf_to_images.py: resolve_source() now delegates to pathguard.require_real_file(); the [read] line states 'real path, no symlinks'",
+    "docs: SKILL.md (boundary promises, write-op table, hard constraints, frontmatter description), manifest.json (description + permissions.notes), README.md / README.en.md and references/pdf_reading.md now state that PDF sources must be real paths and that symlinks are refused instead of followed",
+    "manifest.json version 1.0.8"
+  ],
+  "harness": "tmp/kb_v108_verify.py (22 checks: PDF source refusal + read/write regression + metadata) and tmp/kb_v107_verify.py (29 checks: full read/write symlink containment regression)",
+  "results": {
+    "v108": {"passed": 22, "total": 22, "skipped_due_to_missing_dependency": ["PD8 convert_pdf_to_images integration run (pdf2image not installed) — same shared gate is unit-tested via PD2/PD3"]},
+    "v107_regression": {"passed": 29, "total": 29},
+    "total": "51/51 PASS"
+  },
+  "attack_scenarios_tested": [
+    "unit: require_real_file accepts a real PDF path; raises PathEscapeError for a symlinked PDF file and for a path that traverses a symlinked directory",
+    "integration: extract_pdf_text with a symlinked source -> exit 2, error names the symlink, no output file created, no file added to the folder",
+    "integration: extract_pdf_text via a symlinked directory (kb/linkdir/outside.pdf) -> exit 2, no output",
+    "integration: extract_pdf_text with a real source still extracts normally (page text verified in the produced .txt)",
+    "regression: output written outside the source directory is still refused",
+    "regression: search/listing still skip escaped symlinked entries and count them; in-KB indexes still generated"
+  ],
+  "verification_note": "发布后跑 clawhub skill verify --version 1.0.8 复核（目标 security=clean / benign），并核对元数据（displayName / topics / summary 漂移）"
+}

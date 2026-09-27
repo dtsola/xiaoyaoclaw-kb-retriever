@@ -19,7 +19,10 @@
      计数"处理，不会去 read 库外的文件）。
   4. 目标已是符号链接时同上：解出来的真实路径越界即拒绝（既不跟着链接写，
      也不跟着链接读）。
-  5. **fail closed**：任何校验不通过都拒绝，绝不"先做再说"。
+  5. **源文件（如待处理的 PDF）不走链接**：`require_real_file()` 要求路径任一段都不是
+     符号链接 —— 只"解开链接再读"等于跟着链接走到库外，边界形同虚设；因此一律拒绝
+     （fail closed），并回显真实位置供调用方改用真实路径。
+  6. **fail closed**：任何校验不通过都拒绝，绝不"先做再说"。
 
 不做：不删除任何文件；不跟随链接到库外（既不写、也不在库外建目录、也不读）。
 """
@@ -94,3 +97,25 @@ def read_within(root_real: str, target: str, *, what: str = "读取目标") -> s
 def is_symlink(path: str) -> bool:
     """目标本身是否为符号链接（用于显式披露/拒绝）。"""
     return os.path.islink(os.path.expanduser(str(path)))
+
+
+def require_real_file(path: str, *, what: str = "源文件") -> str:
+    """校验目标是**真实路径**上的普通文件：路径中任一段是符号链接即拒绝。
+
+    为什么读侧也要这条：如果只把符号链接解成真实路径再去读，等于"跟着链接走到库外"，
+    边界就形同虚设。这里选择 **fail closed**：源文件必须是真实路径（不含符号链接），
+    否则拒绝并回显真实位置，让调用方改用真实路径。
+    """
+    given = os.path.abspath(os.path.expanduser(str(path)))
+    if os.path.islink(given):
+        raise PathEscapeError(
+            f"{what}是符号链接，已拒绝（可能指向知识库之外）：{given} -> {os.path.realpath(given)}"
+        )
+    if not os.path.isfile(given):
+        raise PathEscapeError(f"{what}不存在或不是文件：{given}")
+    real = os.path.realpath(given)
+    if _norm(real) != _norm(given):
+        raise PathEscapeError(
+            f"{what}的路径中包含符号链接，已拒绝（可能指向知识库之外）：{given} -> {real}"
+        )
+    return real
