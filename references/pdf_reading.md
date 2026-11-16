@@ -181,11 +181,13 @@ img = bitmap.to_pil()
 # 落盘不要用相对路径：直接用随包脚本（它会逐页校验目标在根内、非链接、非目录）
 #   python scripts/convert_pdf_to_images.py --root "<知识库根>" "<pdf>" "<输出目录>"
 
-# 渲染多页
+# 渲染多页（仅用于 OCR / 预览，**不要在这里落盘**）
 for i, page in enumerate(pdf):
     bitmap = page.render(scale=1.5)
     img = bitmap.to_pil()
-    img.save(f"page_{i+1}.jpg", "JPEG", quality=90)
+    # 需要保存时，统一交给随包脚本（它逐页校验：在知识库根内、非符号链接、非目录、存在即跳过）
+    #   python scripts/convert_pdf_to_images.py --root "<知识库根>" "<pdf>" "<输出目录>"
+    _ = img  # 内存中继续处理（例如交给 pytesseract）
 ```
 
 ## OCR 提取（扫描PDF）
