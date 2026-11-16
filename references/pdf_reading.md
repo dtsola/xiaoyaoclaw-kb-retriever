@@ -142,7 +142,9 @@ with pdfplumber.open(kb_path("document.pdf")) as pdf:
 
 if all_tables:
     combined_df = pd.concat(all_tables, ignore_index=True)
-    combined_df.to_excel("extracted_tables.xlsx", index=False)
+    # 检索期只读：表格留在内存里用（筛选/汇总后写进回答）。
+    # 需要落盘属于「维护动作」，必须先取得用户确认，且目标必须在知识库根内
+    # 并通过真实路径校验（见 SKILL.md「维护脚本」一节），不要用相对路径直接 to_excel。
 ```
 
 #### 复杂表格的高级设置
@@ -170,13 +172,14 @@ with pdfplumber.open(kb_path("complex_table.pdf")) as pdf:
 ```python
 import pypdfium2 as pdfium
 
-pdf = pdfium.PdfDocument("document.pdf")
+pdf = pdfium.PdfDocument(kb_path("document.pdf"))
 
 # 渲染单页为图片（供 OCR 或人工查看）
 page = pdf[0]
 bitmap = page.render(scale=2.0)
 img = bitmap.to_pil()
-img.save("page_1.png", "PNG")
+# 落盘不要用相对路径：直接用随包脚本（它会逐页校验目标在根内、非链接、非目录）
+#   python scripts/convert_pdf_to_images.py --root "<知识库根>" "<pdf>" "<输出目录>"
 
 # 渲染多页
 for i, page in enumerate(pdf):

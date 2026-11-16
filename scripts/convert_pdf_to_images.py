@@ -63,7 +63,11 @@ def resolve_output_within(pdf_path: str, output_dir: str) -> str:
 
 
 def safe_image_target(output_dir: str, root: str, index: int) -> str:
-    """逐页校验写目标：在根内、非符号链接、非目录；返回可写的绝对路径。"""
+    """逐页校验写目标：在根内、非符号链接、非目录、**且尚不存在**。
+
+    只新建、不覆盖是本脚本对外的承诺：既有的 `page_N.png` 可能是用户上一轮
+    手工挑过的结果，覆盖等于销毁它。存在即跳过（调用方打印原因）。
+    """
     target = os.path.join(output_dir, f"page_{index}.png")
     resolved = pathguard.real_target(target)
     if not pathguard.is_within(root, resolved, allow_equal=True):
@@ -72,6 +76,8 @@ def safe_image_target(output_dir: str, root: str, index: int) -> str:
         fail(f"写目标是符号链接，拒绝写入（避免覆盖链接指向的文件）：{target}")
     if os.path.isdir(target):
         fail(f"写目标是目录，拒绝写入：{target}")
+    if os.path.exists(target):
+        return ""     # 已存在：跳过，不覆盖
     return target
 
 
@@ -94,6 +100,9 @@ def convert(pdf_path, output_dir, root, max_dim=1000):
 
         # 逐页校验（不只看目录）：目标必须在根内、不是链接、不是目录
         image_path = safe_image_target(output_dir, root, i + 1)
+        if not image_path:
+            print(f"跳过 page_{i+1}.png（已存在，不覆盖）")
+            continue
         image.save(image_path)
         print(f"Saved page {i+1} as {image_path} (size: {image.size})")
 

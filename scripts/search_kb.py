@@ -43,6 +43,7 @@ MAX_HITS = 50
 MAX_FILES = 100
 MAX_LINE_CHARS = 200
 MAX_FILE_BYTES = 2 * 1024 * 1024      # 单文件最多读 2 MB
+MAX_SCAN = 5000                       # 单次运行最多扫描的文件数（search 与 list 共用）
 SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv", "venv", ".idea", ".vscode"}
 
 
@@ -68,7 +69,7 @@ def resolve_root(root: str) -> str:
         sys.exit(2)
 
 
-def iter_files(root: str, exts: tuple[str, ...], stats: ScanStats):
+def iter_files(root: str, exts: tuple[str, ...], stats: ScanStats, max_scan: int = MAX_SCAN):
     """遍历真实根内的文件，逐个过读取边界；越界条目跳过并计数。
 
     产出 (显示用相对路径, 通过校验的真实路径) —— 读取一律使用后者。
@@ -94,12 +95,17 @@ def iter_files(root: str, exts: tuple[str, ...], stats: ScanStats):
                 stats.escaped += 1
                 continue
             stats.scanned += 1
+            if stats.scanned > max_scan:
+                # 扫描预算：防止超大知识库 + 罕见关键词导致长时间遍历
+                print(f"...（已达扫描上限 {max_scan} 个文件，用 --max-scan 调整）", file=sys.stderr)
+                return
             yield rel, real
 
 
-def list_files(root: str, exts: tuple[str, ...], max_files: int, stats: ScanStats) -> int:
+def list_files(root: str, exts: tuple[str, ...], max_files: int, stats: ScanStats,
+               max_scan: int = MAX_SCAN) -> int:
     count = 0
-    for rel, real in iter_files(root, exts, stats):
+    for rel, real in iter_files(root, exts, stats, max_scan):
         try:
             size = os.path.getsize(real)
         except OSError:
@@ -113,13 +119,14 @@ def list_files(root: str, exts: tuple[str, ...], max_files: int, stats: ScanStat
     return 0
 
 
-def search(root: str, keyword: str, exts: tuple[str, ...], max_hits: int, stats: ScanStats) -> int:
+def search(root: str, keyword: str, exts: tuple[str, ...], max_hits: int, stats: ScanStats,
+           max_scan: int = MAX_SCAN) -> int:
     """按字面量搜索关键词。关键词作为数据比对，不参与任何命令/正则解析。"""
     if not keyword:
         print("ERROR: 关键词不能为空", file=sys.stderr)
         return 2
     hits = 0
-    for rel, real in iter_files(root, exts, stats):
+    for rel, real in iter_files(root, exts, stats, max_scan):
         try:
             if os.path.getsize(real) > MAX_FILE_BYTES:
                 continue
@@ -146,6 +153,7 @@ def main() -> int:
                         help=f"限定扩展名（逗号分隔，默认 {','.join(DEFAULT_EXTS)}）")
     parser.add_argument("--max-hits", type=int, default=MAX_HITS, help=f"最多返回条数（默认 {MAX_HITS}）")
     parser.add_argument("--max-files", type=int, default=MAX_FILES, help=f"列举模式下最多文件数（默认 {MAX_FILES}）")
+    parser.add_argument("--max-scan", type=int, default=MAX_SCAN, help=f"单次运行最多扫描的文件数（默认 {MAX_SCAN}）")
     parser.add_argument("--list", action="store_true", help="只列举文件，不搜索")
     args = parser.parse_args()
 
@@ -154,8 +162,8 @@ def main() -> int:
     stats = ScanStats()
     print(f"[kb] 检索范围：{root}（只读；扩展名 {','.join(exts) or '全部'}）")
     if args.list or not args.keyword:
-        return list_files(root, exts, args.max_files, stats)
-    return search(root, args.keyword, exts, args.max_hits, stats)
+        return list_files(root, exts, args.max_files, stats, args.max_scan)
+    return search(root, args.keyword, exts, args.max_hits, stats, args.max_scan)
 
 
 if __name__ == "__main__":

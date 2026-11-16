@@ -323,14 +323,20 @@ python scripts/search_kb.py <知识库根目录> --list --max-files 100    # 只
    - 根据 `data_structure.md` 中的描述，选择最相关的 1-3 个文件
    - 如果用户指明具体 PDF 文件，则优先使用该文件
 
-3. **应用学到的方法提取文本**
-   - **统一走 Python 路线**（双平台一致）：`python -c "import pdfplumber; ..."` 或写临时脚本执行
-   - **重要**：将提取的文本写入 `.txt` 文件，不要直接打印到 stdout（避免占用大量 token）：
-     - Windows/macOS 通用：`python extract_pdf.py input.pdf output.txt`（脚本见 references/pdf_reading.md）
-   - 如需提取表格，使用 pdfplumber 的 `extract_tables()` 功能
+3. **在内存里提取并检索（检索期不落盘）**
+   - **统一走 Python 路线**（双平台一致）：用 pdfplumber 在进程内提取文本/表格
+   - **不要为了一次检索把整份 PDF 落盘**：那是「派生写入」，属于维护动作。
+     检索期的做法是**只把命中的片段写进回答**（页码 + 少量上下文），
+     提取结果留在内存里，读完即弃
+   - 确实需要落盘（例如用户要一份可检索的文本副本）→ 这属于维护动作：
+     **先取得用户确认**，再用 `scripts/extract_pdf_text.py --root <知识库根> <pdf> <txt>`
+     （脚本会校验源与目标都在根内、目标非链接、不覆盖源文件、原子写入）
+   - 如需提取表格，使用 pdfplumber 的 `extract_tables()`，同样在内存里筛选后直接写进回答
 
 4. **对提取结果执行检索**
-   - 使用 exec 对提取的文本文件进行关键词搜索（Select-String / grep）
+   - **检索一律走 `scripts/search_kb.py`**：它逐文件解析真实路径、越界（含符号链接）即跳过并计数；
+     **不要**用 `grep -r` / `Get-ChildItem -Recurse` 递归搜文本文件（会跟随链接读到库外）
+   - 对 PDF 这类二进制文档，先在内存里提取文本再用 Python 做匹配（或先按第 3 步经用户确认落盘后检索）
    - 对于每个命中，提取命中附近范围的上下文（上下数十行或相邻几页）
    - 保存「文件名 + 页码/大致位置 + 文本片段」
    - 应用「多轮迭代检索机制」（见上文公共检索原则）

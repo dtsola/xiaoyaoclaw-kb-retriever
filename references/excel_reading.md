@@ -48,7 +48,7 @@ print(df.describe())
 import pandas as pd
 
 # 读取所有工作表
-excel_file = pd.ExcelFile("workbook.xlsx")
+excel_file = pd.ExcelFile(kb_path("workbook.xlsx"))
 
 for sheet_name in excel_file.sheet_names:
     df = pd.read_excel(excel_file, sheet_name=sheet_name)
