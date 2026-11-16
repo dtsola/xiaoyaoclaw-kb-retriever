@@ -7,6 +7,10 @@
 
 使用 pandas 对 Excel 数据进行常规分析操作。
 
+> ⚠️ **读取边界**：示例中的 `kb_path(...)` 来自 `scripts/pathguard.py` 的受控助手
+> （见 `references/pdf_reading.md` 顶部完整实现）。所有读取都必须先解析真实路径
+> 并确认仍在知识库根内；不要直接把用户给的相对路径交给 pandas。
+
 ## 快速参考
 
 | 任务 | 常用方法 | 代码示例 |
@@ -22,7 +26,7 @@
 ```python
 import pandas as pd
 
-df = pd.read_excel("sales.xlsx")
+df = pd.read_excel(kb_path("sales.xlsx"))
 
 # 按列分组并聚合
 sales_by_region = df.groupby("region")["sales"].sum()

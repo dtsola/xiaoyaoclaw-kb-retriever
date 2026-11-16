@@ -163,10 +163,19 @@ def main():
             empty += 1
             continue
 
-        index_path = os.path.join(dirpath, INDEX_NAME)
+        raw_index_path = os.path.join(dirpath, INDEX_NAME)
+        # ★ 先用**未被解析的原始路径**判断是否为符号链接：assert_within 会把路径
+        #   解析成真实路径，解析之后 islink() 恒为 False，这个检查就白做了。
+        #   索引只允许是普通文件或不存在 —— 库内一个指向其它文档的 data_structure.md
+        #   链接，在 --force 下会被当成索引覆盖，等于截断那份文档。
+        if os.path.islink(raw_index_path):
+            escaped += 1
+            print(f"  跳过（索引文件是符号链接，拒绝覆盖）: {os.path.relpath(raw_index_path, root)}",
+                  file=sys.stderr)
+            continue
         # 唯一写盘闸：解析符号链接后必须仍在根目录内（fail closed）
         try:
-            index_path = pathguard.assert_within(root, index_path, what="索引文件")
+            index_path = pathguard.assert_within(root, raw_index_path, what="索引文件")
         except pathguard.PathEscapeError as exc:
             escaped += 1
             print(f"  跳过（越界，可能是符号链接）: {exc}", file=sys.stderr)
@@ -175,10 +184,34 @@ def main():
             skipped += 1
             print(f"跳过（已有索引）: {os.path.relpath(index_path, root)}")
             continue
+        if os.path.exists(index_path) and not os.path.isfile(index_path):
+            escaped += 1
+            print(f"  跳过（索引路径不是普通文件）: {os.path.relpath(index_path, root)}",
+                  file=sys.stderr)
+            continue
 
         content = generate_index(dirpath, subdirs, files, root)
-        with open(index_path, "w", encoding="utf-8") as f:
-            f.write(content)
+        # 独占临时文件 + 原子替换：不会截断既有文件、也不会写穿链接
+        tmp_path = f"{index_path}.tmp-{os.getpid()}"
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0)
+        try:
+            fd = os.open(tmp_path, flags, 0o600)
+        except OSError as exc:
+            escaped += 1
+            print(f"  跳过（无法创建临时索引）：{exc}", file=sys.stderr)
+            continue
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8", newline="") as f:
+                f.write(content)
+            os.replace(tmp_path, index_path)
+        except OSError as exc:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+            escaped += 1
+            print(f"  跳过（写入索引失败）：{exc}", file=sys.stderr)
+            continue
         generated += 1
         rel = os.path.relpath(index_path, root)
         print(f"生成: {rel}（{len(subdirs)} 子目录, {len(files)} 文件）")

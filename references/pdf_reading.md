@@ -7,6 +7,31 @@
 
 用于从 PDF 文件中提取文本、表格和元数据的方法。
 
+## ⚠️ 读取边界：所有示例都先过 `pathguard`
+
+本技能的承诺是「所有读取都限定在知识库根内，越界（含符号链接）即拒绝」。下面的示例
+全部假定你已经用受控助手拿到**真实路径**——不要直接把用户/文档给出的字符串塞进
+`open()` / `PdfReader()` / `pdfplumber.open()`：相对路径取决于工作目录，符号链接会把
+读取带到库外。
+
+```python
+import sys, pathlib
+sys.path.insert(0, "<技能目录>/scripts")
+import pathguard
+
+KB_ROOT = "<知识库根目录>"
+
+def kb_path(rel: str) -> str:
+    """把库内相对路径解析成真实路径；越出知识库根即拒绝（fail closed）。"""
+    root = pathguard.real_root(KB_ROOT)
+    real = pathguard.real_target(str(pathlib.Path(root) / rel))
+    if not pathguard.is_within(root, real):
+        raise SystemExit(f"拒绝读取：越出知识库根 {real}")
+    return real
+```
+
+后文示例里的 `kb_path("document.pdf")` 即由此而来。
+
 ## 平台策略（重要）
 
 **PDF 处理统一走 Python 路线**（pdfplumber + pypdf + pypdfium2），Windows 与 macOS 行为完全一致：
@@ -63,7 +88,7 @@ python scripts/extract_pdf_text.py <input.pdf> <output.txt> [start_page] [end_pa
 ```python
 from pypdf import PdfReader
 
-reader = PdfReader("document.pdf")
+reader = PdfReader(kb_path("document.pdf"))
 
 # 提取全部文本
 for page in reader.pages:
@@ -82,7 +107,7 @@ print(f"Author: {meta.author}")
 ```python
 import pdfplumber
 
-with pdfplumber.open("document.pdf") as pdf:
+with pdfplumber.open(kb_path("document.pdf")) as pdf:
     for page in pdf.pages:
         text = page.extract_text()
 ```
@@ -92,7 +117,7 @@ with pdfplumber.open("document.pdf") as pdf:
 ```python
 import pdfplumber
 
-with pdfplumber.open("document.pdf") as pdf:
+with pdfplumber.open(kb_path("document.pdf")) as pdf:
     for i, page in enumerate(pdf.pages):
         tables = page.extract_tables()
         for j, table in enumerate(tables):
@@ -107,7 +132,7 @@ with pdfplumber.open("document.pdf") as pdf:
 import pandas as pd
 import pdfplumber
 
-with pdfplumber.open("document.pdf") as pdf:
+with pdfplumber.open(kb_path("document.pdf")) as pdf:
     all_tables = []
     for page in pdf.pages:
         for table in page.extract_tables():
@@ -125,7 +150,7 @@ if all_tables:
 ```python
 import pdfplumber
 
-with pdfplumber.open("complex_table.pdf") as pdf:
+with pdfplumber.open(kb_path("complex_table.pdf")) as pdf:
     page = pdf.pages[0]
     table_settings = {
         "vertical_strategy": "lines",
@@ -169,7 +194,7 @@ import pytesseract
 from pdf2image import convert_from_path
 
 # PDF 转图片
-images = convert_from_path('scanned.pdf')
+images = convert_from_path(kb_path('scanned.pdf'))
 
 # OCR 每一页
 text = ""
@@ -186,7 +211,7 @@ for i, image in enumerate(images):
 ```python
 from pypdf import PdfReader
 
-reader = PdfReader("encrypted.pdf")
+reader = PdfReader(kb_path("encrypted.pdf"))
 if reader.is_encrypted:
     reader.decrypt("password")
 
@@ -196,30 +221,21 @@ for page in reader.pages:
 
 ## 批量处理
 
-```python
-import os, glob
-from pypdf import PdfReader
-import logging
+批量场景**不要自己 glob + 写同名 .txt**：那会跟随符号链接读库外文件，并可能覆盖
+既有文件（包括源 PDF 之外的文档）。逐份调用受控助手即可（它校验根、拒绝链接、
+原子写入、不覆盖源文件）：
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+```bash
+# 逐个文件处理（root 必须显式给出；库外 PDF / 链接一律拒绝）
+python scripts/extract_pdf_text.py --root "$KB_ROOT" "$pdf" "${pdf%.pdf}.txt"
+```
 
-def batch_extract_text(input_dir):
-    """批量提取文本（双平台通用）"""
-    pdf_files = glob.glob(os.path.join(input_dir, "*.pdf"))
-    for pdf_file in pdf_files:
-        try:
-            reader = PdfReader(pdf_file)
-            text = ""
-            for page in reader.pages:
-                text += page.extract_text() or ""
-            output_file = pdf_file.replace('.pdf', '.txt')
-            with open(output_file, 'w', encoding='utf-8') as f:
-                f.write(text)
-            logger.info(f"Extracted: {pdf_file}")
-        except Exception as e:
-            logger.error(f"Failed {pdf_file}: {e}")
-            continue
+要批量遍历，先列出**非链接**的 PDF，再逐份调用：
+
+```bash
+find "$KB_ROOT" -type l -prune -o -type f -name '*.pdf' -print | while read -r pdf; do
+  python scripts/extract_pdf_text.py --root "$KB_ROOT" "$pdf" "${pdf%.pdf}.txt"
+done
 ```
 
 ## 性能优化

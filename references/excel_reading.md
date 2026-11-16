@@ -7,6 +7,10 @@
 
 使用 pandas 读取 Excel 文件的核心方法。
 
+> ⚠️ **读取边界**：示例中的 `kb_path(...)` 来自 `scripts/pathguard.py` 的受控助手
+> （见 `references/pdf_reading.md` 顶部完整实现）。所有读取都必须先解析真实路径
+> 并确认仍在知识库根内；不要直接把用户给的相对路径交给 pandas。
+
 ## 快速入门
 
 **最常用的读取方式**：
@@ -14,13 +18,13 @@
 import pandas as pd
 
 # 读取第一个工作表（或指定工作表）
-df = pd.read_excel("data.xlsx", sheet_name="Sheet1")
+df = pd.read_excel(kb_path("data.xlsx"), sheet_name="Sheet1")
 
 # 只读取前几行查看结构
-df_preview = pd.read_excel("data.xlsx", nrows=10)
+df_preview = pd.read_excel(kb_path("data.xlsx"), nrows=10)
 
 # 只读取需要的列（提高性能）
-df = pd.read_excel("data.xlsx", usecols=["列1", "列2", "列3"])
+df = pd.read_excel(kb_path("data.xlsx"), usecols=["列1", "列2", "列3"])
 ```
 
 ## 读取单个工作表
@@ -29,7 +33,7 @@ df = pd.read_excel("data.xlsx", usecols=["列1", "列2", "列3"])
 import pandas as pd
 
 # 读取指定工作表
-df = pd.read_excel("data.xlsx", sheet_name="Sheet1")
+df = pd.read_excel(kb_path("data.xlsx"), sheet_name="Sheet1")
 
 # 查看前几行
 print(df.head())
@@ -58,7 +62,7 @@ for sheet_name in excel_file.sheet_names:
 import pandas as pd
 
 # 只读取指定列（提高性能）
-df = pd.read_excel("data.xlsx", usecols=["column1", "column2", "column3"])
+df = pd.read_excel(kb_path("data.xlsx"), usecols=["column1", "column2", "column3"])
 ```
 
 ## 性能优化选项

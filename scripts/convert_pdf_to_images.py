@@ -9,8 +9,10 @@
       一律拒绝**（`scripts/pathguard.py` 的 `require_real_file`，fail closed），因此本脚本
       绝不会"跟着链接"读到知识库之外；被拒时报错会回显真实位置，改用真实路径即可。
     - **写盘披露**：运行前打印将写入的目录；只新建 PNG，不删不改其它文件。
-    - **写入范围**：<output_dir> 必须位于**源 PDF 所在目录树内**；按真实路径校验
-      （解符号链接后仍须在根内，越界即拒绝）
+    - **写入范围**：<output_dir> 必须位于**显式传入的知识库根**（--root）内，且仍在源 PDF 所在
+      目录树内；按真实路径校验（解符号链接后仍须在根内，越界即拒绝）
+    - **逐页校验写目标**：每个 `page_N.png` 都单独检查（在根内、非符号链接、非目录）——
+      只校验目录是不够的：库内一个指向库外的 `page_1.png` 链接会把这次写入带出去
     - 依赖 `pdf2image`（版本见 requirements-optional.txt），并需系统级 poppler；安装前须告知用户并取得确认。
 
 语言 / Language：输出默认中文，**语言可选**（可按用户语言调整文案）。
@@ -24,13 +26,31 @@ import pathguard  # noqa: E402
 from pdf2image import convert_from_path  # 可选依赖，版本见 requirements-optional.txt
 
 
-def resolve_source(pdf_path: str) -> str:
-    """源 PDF 必须是**真实路径**上的普通文件；路径中任一段是符号链接即拒绝（fail closed）。"""
+def fail(message: str) -> None:
+    print(f"ERROR: {message}", file=sys.stderr)
+    sys.exit(2)
+
+
+def resolve_root(root_arg: str) -> str:
+    """知识库根：必须显式给出、已存在的真实目录（不接受根本身是软链）。"""
     try:
-        return pathguard.require_real_file(pdf_path, what="源 PDF")
+        root = pathguard.real_root(root_arg)
     except pathguard.PathEscapeError as exc:
-        print(f"ERROR: {exc}", file=sys.stderr)
-        sys.exit(2)
+        fail(str(exc))
+    if os.path.islink(os.path.abspath(os.path.expanduser(root_arg))):
+        fail(f"知识库根不得是符号链接：{root_arg}")
+    return root
+
+
+def resolve_source(pdf_path: str, root: str) -> str:
+    """源 PDF：真实路径、普通文件、任一段无符号链接，且**在知识库根内**。"""
+    try:
+        source = pathguard.require_real_file(pdf_path, what="源 PDF")
+    except pathguard.PathEscapeError as exc:
+        fail(str(exc))
+    if not pathguard.is_within(root, pathguard.real_target(source)):
+        fail(f"源 PDF 越出知识库根（{root}），已拒绝：{pdf_path}")
+    return source
 
 
 def resolve_output_within(pdf_path: str, output_dir: str) -> str:
@@ -38,18 +58,27 @@ def resolve_output_within(pdf_path: str, output_dir: str) -> str:
     root = pathguard.real_root(os.path.dirname(os.path.abspath(os.path.expanduser(pdf_path))))
     resolved = pathguard.real_target(output_dir)
     if not pathguard.is_within(root, resolved, allow_equal=True):
-        print(
-            f"ERROR: 输出目录必须位于源 PDF 所在目录内（{root}），已拒绝：{output_dir} -> {resolved}",
-            file=sys.stderr,
-        )
-        sys.exit(2)
+        fail(f"输出目录必须位于源 PDF 所在目录内（{root}），已拒绝：{output_dir} -> {resolved}")
     return resolved
+
+
+def safe_image_target(output_dir: str, root: str, index: int) -> str:
+    """逐页校验写目标：在根内、非符号链接、非目录；返回可写的绝对路径。"""
+    target = os.path.join(output_dir, f"page_{index}.png")
+    resolved = pathguard.real_target(target)
+    if not pathguard.is_within(root, resolved, allow_equal=True):
+        fail(f"写目标越出知识库根（{root}），已拒绝：{target} -> {resolved}")
+    if os.path.islink(target):
+        fail(f"写目标是符号链接，拒绝写入（避免覆盖链接指向的文件）：{target}")
+    if os.path.isdir(target):
+        fail(f"写目标是目录，拒绝写入：{target}")
+    return target
 
 
 # Converts each page of a PDF to a PNG image.
 
 
-def convert(pdf_path, output_dir, max_dim=1000):
+def convert(pdf_path, output_dir, root, max_dim=1000):
     os.makedirs(output_dir, exist_ok=True)
     print(f"[write] 将把每页 PNG 写入：{output_dir}（源 PDF 不改动）")
     images = convert_from_path(pdf_path, dpi=200)
@@ -62,8 +91,9 @@ def convert(pdf_path, output_dir, max_dim=1000):
             new_width = int(width * scale_factor)
             new_height = int(height * scale_factor)
             image = image.resize((new_width, new_height))
-        
-        image_path = os.path.join(output_dir, f"page_{i+1}.png")
+
+        # 逐页校验（不只看目录）：目标必须在根内、不是链接、不是目录
+        image_path = safe_image_target(output_dir, root, i + 1)
         image.save(image_path)
         print(f"Saved page {i+1} as {image_path} (size: {image.size})")
 
@@ -71,11 +101,15 @@ def convert(pdf_path, output_dir, max_dim=1000):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: convert_pdf_to_images.py [input pdf] [output directory]")
+    # 用法：convert_pdf_to_images.py --root <知识库根> <input.pdf> <output_dir>
+    argv = sys.argv[1:]
+    if len(argv) < 4 or argv[0] not in ("--root", "-r"):
+        print("Usage: convert_pdf_to_images.py --root <knowledge base root> "
+              "<input pdf> <output directory>", file=sys.stderr)
         sys.exit(1)
-    pdf_path = sys.argv[1]
-    source_pdf = resolve_source(pdf_path)
-    output_directory = resolve_output_within(source_pdf, sys.argv[2])
-    print(f"[read]  源 PDF（真实路径，无符号链接）：{source_pdf}")
-    convert(source_pdf, output_directory)
+    root = resolve_root(argv[1])
+    source_pdf = resolve_source(argv[2], root)
+    output_directory = resolve_output_within(source_pdf, argv[3])
+    print(f"[read]  知识库根：{root}")
+    print(f"[read]  源 PDF（真实路径，无符号链接，在根内）：{source_pdf}")
+    convert(source_pdf, output_directory, root)

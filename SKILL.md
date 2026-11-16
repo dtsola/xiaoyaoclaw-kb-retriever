@@ -74,8 +74,8 @@ Windows / macOS 双平台，先学后处理，来源可溯（PDF/Excel 处理按
 
 **可选写操作**（均需用户明确要求，或作为检索流程的必要中间步骤）：
 - `scripts/build_index.py` → 生成 / 更新 `data_structure.md` 分层索引（写入知识库根目录及各子目录）
-- `scripts/extract_pdf_text.py` → 提取 PDF 文本为派生 `.txt` 文件（**写入源 PDF 所在目录内**，源 PDF 不动；**源 PDF 须为真实路径**，含符号链接即拒绝）
-- `scripts/convert_pdf_to_images.py` → 扫描件转图片（OCR 可选路径，**产物写入源 PDF 所在目录树内的子目录**；**源 PDF 须为真实路径**，含符号链接即拒绝）
+- `scripts/extract_pdf_text.py` → 提取 PDF 文本为派生 `.txt` 文件（用法：`--root <知识库根> <pdf> <txt>`；源与目标都按真实路径校验在根内；源 PDF 不动、目标与源同文件即拒绝、目标为链接即拒绝、写入原子替换）
+- `scripts/convert_pdf_to_images.py` → 扫描件转图片（OCR 可选路径；用法：`--root <知识库根> <pdf> <输出目录>`；**每一页 PNG 的写目标都单独校验**在根内、非链接、非目录；源 PDF 须为真实路径）
 
 **边界承诺**：
 - 不修改任何源文件（md / pdf / xlsx 原样保留）
@@ -153,31 +153,21 @@ python scripts/search_kb.py <知识库根目录> "<关键词>" --max-hits 50
 python scripts/search_kb.py <知识库根目录> --list --max-files 100    # 只列举文件
 ```
 
-⚠️ **为什么不要自己拼 shell 命令**：关键词与目录都是**用户可控文本**。写成
-`Select-String -Pattern "<关键词>"` / `grep "<关键词>"` 这类**字符串模板**时，
-文本里的引号、反引号、`$()`、`;` 会被 shell 当成语法 —— 这就是命令注入。
-如果必须直接用 shell，遵守下面三条：
+⚠️ **不要用 shell 递归检索作为回退**。`grep -r` / `Get-ChildItem -Recurse` 这类递归
+检索会**跟随符号链接**：库内一个指向库外的 `notes.md` 链接，就会把库外文件的内容读进
+结果并写进回答 —— 边界形同虚设。`scripts/search_kb.py` 是**唯一**被认可的检索实现：
+它逐文件解析真实路径、越界即跳过并计数。
 
-1. **关键词与路径先放进变量**，命令里只引用变量，绝不拼接字符串：
-   ```powershell
-   $dir = 'C:\path\to\kb'      # 已确认在知识库根目录内
-   $kw  = '用户给的关键词'         # 原样放进单引号变量
-   Get-ChildItem -LiteralPath $dir -Recurse -File -Include *.md,*.txt |
-     Select-String -Pattern $kw -SimpleMatch |
-     Select-Object -First 50 Path, LineNumber, Line
-   ```
-   ```bash
-   dir='/path/to/kb'; kw='用户给的关键词'
-   grep -rnF -e "$kw" --include='*.md' --include='*.txt' -- "$dir" | head -50
-   ```
-2. **关键词按字面量匹配**（PowerShell `-SimpleMatch` / `grep -F`），不要当正则用；
-   路径用 `-LiteralPath`，别让用户文本当通配符或路径片段。
-3. **禁止** `Invoke-Expression` / `iex` / `eval` / `sh -c "$拼接"`，也不要把关键词
-   塞进命令名、参数名、重定向目标这类**结构性位置**；路径必须落在知识库根目录内。
+同样不要自己拼 shell 字符串：关键词与目录都是**用户可控文本**，写进
+`grep "<关键词>"` / `Select-String -Pattern "<关键词>"` 这类模板时，引号、反引号、
+`$()`、`;` 会被当成 shell 语法（命令注入）。
 
-**列举文件（替代 Glob）**：
-- Windows：`Get-ChildItem -Path "<dir>" -Recurse -File | Select-Object -ExpandProperty FullName | Select-Object -First 100`
-- macOS/Linux：`find "<dir>" -type f | head -100`
+**只列举文件名（不读内容）时**，必须显式排除链接：
+- Windows（PowerShell）：`Get-ChildItem -LiteralPath "<dir>" -Recurse -File -Attributes !ReparsePoint | Select-Object -First 100 -ExpandProperty FullName`
+- macOS/Linux：`find "<dir>" -type l -prune -o -type f -print | head -100`
+
+**禁止**：`Invoke-Expression` / `iex` / `eval` / `sh -c "$拼接"`；把关键词塞进命令名、
+参数名、重定向目标这类结构性位置；用任何**会跟随链接**的递归检索替代 `search_kb.py`。
 
 **检查目录存在（替代 test -d）**：
 - Windows：`Test-Path -Path "<dir>"`
@@ -389,9 +379,9 @@ python scripts/search_kb.py <知识库根目录> --list --max-files 100    # 只
 
 - 检索核心**零依赖**；PDF / Excel / 扫描件处理才需要额外包
 - **版本精确钉死**在 [`requirements-optional.txt`](requirements-optional.txt)（解析不可信文档时，解析库版本必须确定）：
-  `pdfplumber==0.11.10` / `pypdf==6.19.0` / `pypdfium2==5.13.0` / `pandas==3.0.5` / `openpyxl==3.1.5`
+  `pdfplumber==0.11.10` / `pypdf==7.1.0` / `pypdfium2==5.15.2` / `pandas==3.1.1` / `openpyxl==3.1.5`
 - ⚠️ **安装前必须告知用户**：明确提示「将安装以下 Python 包（会修改当前 Python 环境）」，**获得用户确认后才执行**；禁止静默安装
-  - PDF：`pip install pdfplumber==0.11.10 pypdf==6.19.0 pypdfium2==5.13.0`
+  - PDF：`pip install pdfplumber==0.11.10 pypdf==7.1.0 pypdfium2==5.15.2`
   - Excel：`pip install pandas==3.0.5 openpyxl==3.1.5`
 - 遇到 `ModuleNotFoundError` / `ImportError`：按上述白名单+钉版提示用户，确认后安装并重试
 - ⚠️ **扫描件 OCR 是可选路径，且要过同一道确认**：仅当 PDF 无文本层且用户明确要求时，才考虑 `pytesseract==0.3.13` + `pdf2image==1.17.0`；它们**还需要系统级依赖**（tesseract / poppler）——必须先把「将安装的 pip 包 + 系统级依赖 + 影响」讲清楚并取得同意，再执行（详见 references/pdf_reading.md）
